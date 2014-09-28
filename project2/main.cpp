@@ -103,10 +103,9 @@ mat Jacobi(mat A, int n, vec p)
         }
     }
 
-
     //Write to file
     ofstream infile;
-    infile.open ("/home/filiphl/Desktop/c2_r.txt");
+    infile.open ("/home/filiphl/Desktop/c5_r.txt");
     infile << setw(15)<<setprecision(8)<<"r/alpha";
     infile << setw(15)<<setprecision(8)<<"R0";
     infile << setw(15)<<setprecision(8)<<"R1";
@@ -127,8 +126,6 @@ mat Jacobi(mat A, int n, vec p)
 
     infile.close();
 
-
-
 /*
     Normering av egenvektorer.
     vec sR;
@@ -144,24 +141,23 @@ mat Jacobi(mat A, int n, vec p)
     ALLEREDE NORMERT!!!! <:o
 */
 
-    cout<<"iterations: "<<iterations<<endl;
+    //cout<<"iterations: "<<iterations<<endl;
     return A;
 }
-
 
 //--------------------------------------------------------------
 
 int main()
 {
-    int n_step = 350;   //280 in b)
-    int p_max = 5;     //5 in b)
+    int n_step = 200;   //280 in b)
+    int p_max = 2;     //5 in b)
     double h = (double)p_max/n_step;
     vec p = linspace(0, p_max, n_step+1);
 
 
 /*--------------------------------------------------*/
 
-
+/*
     // Part B
     //Setting up the tridiagonal matrix
     mat A = zeros<mat>(n_step,n_step);
@@ -173,7 +169,7 @@ int main()
     }
     //Adding the last diagonal element.
     A(n_step-1,n_step-1)= (2./(h*h))+pow(p(n_step),2);
-    A = symmatu(A); //EXPLAIN THIS IN THE REPORT!
+    A = symmatu(A); //makes the lower sub-diag. equal the upper sub-diag.
 
     //Finding the eigenvalues
     mat Eigval = Jacobi(A,n_step, p);
@@ -183,70 +179,71 @@ int main()
     cout<<"lambda0 = " << setw(5) << setprecision(4) << D(0)<<endl;
     cout<<"lambda1 = "<< setw(5) << setprecision(4) << D(1)<<endl;
     cout<<"lambda2 = "<< setw(5) << setprecision(4) << D(2)<<endl;
+*/
 
+    /*-----------------------------------------------------------*/
 
-//    /*-----------------------------------------------------------*/
-//    //Part C
-//    cout<<"\n\n\nPart c) \n \n";
-//    double w[1];
-//    w[0] = 1./4;
-//    //w[1] = 1./4;
-//    //w[2] = 1;
+/*
+    //Part C
+    cout<<"\n\n\nPart c) \n \n";
+    double w[3];
+    w[0] = 0.5;
+    w[1] = 1;
+    w[2] = 5;
 
-//    for (int j=0;j<1;j++){
-//        //Setting up the new tridiagonal matrix (with the new potentials)
-//        mat B = zeros<mat>(n_step,n_step);
+    for (int j=0;j<3;j++){
+        //Setting up the new tridiagonal matrix (with the new potentials)
+        mat B = zeros<mat>(n_step,n_step);
 
-//        double Vc;
-//        for (int i=1; i<n_step; i++)
-//        {
-//            Vc = pow(w[j],2)*pow((p(i)),2) + 1./(p(i));
-//            B(i-1,i-1) = (2/(h*h))+Vc;
-//            B(i-1,i) = -1./(h*h);
-//        }
-//        //Adding the last diagonal element.
-//        B(n_step-1,n_step-1)= (2/(h*h))+pow(w[j],2)*pow((p(n_step)),2) + 1./p(n_step);
-//        B = symmatu(B); //EXPLAIN THIS IN THE REPORT!
+        double Vc;
+        for (int i=1; i<n_step; i++)
+        {
+            Vc = pow(w[j],2)*pow((p(i)),2) + 1./(p(i));
+            B(i-1,i-1) = (2/(h*h))+Vc;
+            B(i-1,i) = -1./(h*h);
+        }
+        //Adding the last diagonal element.
+        B(n_step-1,n_step-1)= (2/(h*h))+pow(w[j],2)*pow((p(n_step)),2) + 1./p(n_step);
+        B = symmatu(B);
 
-//        //Finding the eigenvalues
-//        mat Eigval2 = Jacobi(B,n_step, p);
-//        vec D2 = sort(Eigval2.diag()); //Vector containing the eigenvalues sorted by size.
+        //Finding the eigenvalues
+        mat Eigval2 = Jacobi(B,n_step, p);
+        vec D2 = sort(Eigval2.diag()); //Vector containing the eigenvalues sorted by size.
 
-//        cout<< "omega = "<< setw(4) << setprecision(4)<<w[j];
-//        cout<<setw(15)<<"lambda0 = "<< setw(5) << setprecision(4) << D2(0)/2<<endl;
-//    }
+        cout<< "omega = "<< setw(4) << setprecision(4)<<w[j];
+        cout<<setw(15)<<"lambda0 = "<< setw(5) << setprecision(4) << D2(0)<<endl;
+    }
 
-
+/*
     /*---------------------------------------------------*/
-//    //Part D
-//    cout<<"\n\n\nPart d) \n \n";
+/*
+    //Part D
+    cout<<"\n\n\nPart d) \n \n";
 
 
 
-//    //Setting up the tridiagonal matrix
-//    double wd = 0.01;
-//    mat A = zeros<mat>(n_step,n_step);
-//    double Vd;
-//    for (int i=1; i<n_step; i++)
-//    {
-//        Vd = pow(wd,2)*pow((p(i)),2) + 1./(p(i));// with repultion
-//        A(i-1,i-1) = (2/(h*h))+Vd;
-//        A(i-1,i) = -1./(h*h);
-//    }
-//    //Adding the last diagonal element.
-//    A(n_step-1,n_step-1)= (2./(h*h))+pow(wd,2)*pow(p(n_step),2) + 1./(p(n_step));
-//    A = symmatu(A); //EXPLAIN THIS IN THE REPORT!
+    //Setting up the tridiagonal matrix
+    double wd = 0.01;
+    mat A = zeros<mat>(n_step,n_step);
+    double Vd;
+    for (int i=1; i<n_step; i++)
+    {
+        Vd = pow(wd,2)*pow((p(i)),2) + 1./(p(i));// with repultion
+        A(i-1,i-1) = (2/(h*h))+Vd;
+        A(i-1,i) = -1./(h*h);
+    }
+    //Adding the last diagonal element.
+    A(n_step-1,n_step-1)= (2./(h*h))+pow(wd,2)*pow(p(n_step),2) + 1./(p(n_step));
+    A = symmatu(A); //EXPLAIN THIS IN THE REPORT!
 
-//    //Finding the eigenvalues
-//    mat Eigval = Jacobi(A, n_step, p);
-//    vec D = sort(Eigval.diag()); //Vector containing the eigenvalues sorted by size.
+    //Finding the eigenvalues
+    mat Eigval = Jacobi(A, n_step, p);
+    vec D = sort(Eigval.diag()); //Vector containing the eigenvalues sorted by size.
 
-//    cout<<"lambda0 ="<<setw(5)<<setprecision(4)<<D(0)<<endl;
-//    cout<<"lambda1 ="<<setw(5)<<setprecision(4)<<D(1)<<endl;
-//    cout<<"lambda2 ="<<setw(5)<<setprecision(4)<<D(2)<<endl;
-
-
-
+    cout<<"lambda0 ="<<setw(5)<<setprecision(4)<<D(0)<<endl;
+    cout<<"lambda1 ="<<setw(5)<<setprecision(4)<<D(1)<<endl;
+    cout<<"lambda2 ="<<setw(5)<<setprecision(4)<<D(2)<<endl;
+*/
 
     return 0;
 }
