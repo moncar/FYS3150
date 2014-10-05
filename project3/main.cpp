@@ -124,8 +124,9 @@ vec System::Acceleration(vec A)
 
 void System::Euler()    //Advancing one time-step.
 {
-    P += V*dt;
+
     V += Acceleration(P)*dt;
+    P += V*dt;
 }
 
 void System::RK4()  //Advancing one time-step.
@@ -135,8 +136,9 @@ void System::RK4()  //Advancing one time-step.
     k2 = Acceleration(P + 0.5 * k1) * dt ;
     k3 = Acceleration(P+ 0.5 * k2) * dt ;
     k4 = Acceleration(P + k3 ) * dt ;
-    V+=  (1/6.)*(k1 + 2 * (k2+k3) + k4);    //Updating velocity-vector
+    V+= (1/6.)*(k1 + 2 * (k2+k3) + k4);    //Updating velocity-vector
     P +=V*dt;
+
 }
 
 void System::Solve(double time_period)
@@ -179,17 +181,7 @@ void System::Solve(double time_period)
 
 int main()
 {
-//    vec Data(2);
-//    Data(0) = 1;
-//    Data(1) = 2;
-//    cout << Data<<endl;
-//    cout << Data+3.0<<endl;
-//    vec B(2);
-//    B(0) = 4;
-//    B(1) = 10;
 
-//    Planet Earth("earth", 1.0, 0.0, 0.0, 4.0, 6e24);
-//    Planet Mars("mars", 1.0,  2.0, 3.0, 4.0 ,5.0);
 System Solarsystem;
 Solarsystem.Addplanet("Sun", 0.0, 0.0, 0.0, 0.0, 2e30);
 Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, 2*3.14, 6e24);
@@ -202,7 +194,7 @@ Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, 2*3.14, 6e24);
 //}
 
 Solarsystem.Setup();
-Solarsystem.Solve(10.0);
+Solarsystem.Solve(1.);
 
 system("python /home/filiphl/Desktop/project3/p3plot.py");  //Runs the python script for plotting.
     return 0;

@@ -15,7 +15,7 @@ for i in range(2*n):
 time = []
 for line in infile:			#Stores the data in arrays.
 	words = line.split()
-	time.append(float(words[0]))	#Time. Not that I ever use it...
+	time.append(float(words[0]))	#Time. Not that I ever use it...LOL.
 	for i in range(2*n):
 		planets[i].append(float(words[i+1]))
 
@@ -28,6 +28,6 @@ for i in range(n):
 	plt.hold('on')
 plt.xlabel('x / AU')
 plt.ylabel('y / AU')
-plt.legend(names[1::2])	#Skips the first element, and every other element.
+plt.legend(names[1::2],numpoints=1)	#Skips the first element, and every other element.
 plt.show()
 	
