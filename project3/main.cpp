@@ -67,14 +67,19 @@ private:
     vec V;      // vector containing all velocities.
 public:
     System(){}
+    int n = 0;        //Number of objects.
+    Planet planets[10];     //List of objects.
+    vec Acceleration(vec A);    //Calculates acceleration of  every object.
     void Addplanet(string nm, double x0, double y0, double vx0, double vy0, double m);
     void Setup();
-    vec Acceleration(vec A);
     void Solve(double);
     void Euler();
     void RK4();
-    int n = 0;        //Number of objects.
-    Planet planets[10];     //List of planets.
+    void Verlet();
+    vec P2;
+    vec nextP;
+    vec nextV;
+
 };
 
 void System::Addplanet(string nm, double x0, double y0, double vx0, double vy0, double m)
@@ -131,15 +136,29 @@ void System::Euler()    //Advancing one time-step.
 
 void System::RK4()  //Advancing one time-step.
 {
-    vec k1(2*n), k2(2*n), k3(2*n), k4(2*n); //Declaring vectors
-    k1 = Acceleration(P) * dt;
-    k2 = Acceleration(P + 0.5 * k1) * dt ;
-    k3 = Acceleration(P+ 0.5 * k2) * dt ;
-    k4 = Acceleration(P + k3 ) * dt ;
-    V+= (1/6.)*(k1 + 2 * (k2+k3) + k4);    //Updating velocity-vector
-    P +=V*dt;
+    vec k1p(2*n), k2p(2*n), k3p(2*n), k4p(2*n), k1v(2*n), k2v(2*n), k3v(2*n), k4v(2*n); //Declaring vectors
+    k1p = V * dt;
+    k1v = Acceleration(P) * dt;
+    k2p = (V + 0.5 * k1v) * dt;
+    k2v = Acceleration(P + 0.5 * k1p) * dt;
+    k3p = (V+ 0.5 * k2v) * dt;
+    k3v = Acceleration(P+ 0.5 * k2p) * dt;
+    k4p = (V + k3v ) * dt;
+    k4v = Acceleration(P + k3p) * dt;
 
+    P += (1/6.)*(k1p + 2 * (k2p+k3p) + k4p);    //Updating position-vector
+    V += (1/6.)*(k1v + 2 * (k2v+k3v) + k4v);    //Updating velocity-vector
 }
+
+void System::Verlet()
+{
+    P2 = nextP;
+    V = nextV;
+    nextP = 2*nextP - P + Acceleration(nextP)*dt*dt;
+    nextV = (nextP - P)/(2*dt);
+    P = P2;
+}
+
 
 void System::Solve(double time_period)
 {
@@ -147,33 +166,49 @@ void System::Solve(double time_period)
     double t = 0;          //Set initial time to zero years.
     int Hour = 0;          //Counts itterations.
 
-    fstream outfile;
-    outfile.open("/home/filiphl/Desktop/project3/PlanetData.txt", ios::out);
-    outfile <<"Number_of_objects:"<<"       " << n<<endl; // I use this in python...
-    outfile <<"Hours";
+    nextP = P+V*dt + 0.5*Acceleration(P)*dt*dt; // Needed for verlet.
+    nextV = V + (Acceleration(P) + Acceleration(nextP))*dt / 2.; // Needed for verlet.
+
+    fstream planetpos, planetvel;
+    planetpos.open("/home/filiphl/Desktop/project3/PlanetData.txt", ios::out);
+    planetvel.open("/home/filiphl/Desktop/project3/PlanetVelocites.txt", ios::out);
+    planetpos <<"Number_of_objects:"<<"       " << n<<endl; // I use this in python...
+    planetpos <<"Hours";
+    planetvel << "Hours";
     for (int i=0; i<n; i++)
     {
-        outfile << "        "<< setw(8)<<planets[i].name + "_x"<< "        "<<setw(8)<< planets[i].name + "_y";
+        planetpos << "        "<< setw(8)<<planets[i].name + "_x"<< "        "<<setw(8)<< planets[i].name + "_y";
+        planetvel << "        "<< setw(8)<<planets[i].name + "_vx"<< "        "<<setw(8)<< planets[i].name + "_vy";
     }
-    outfile << endl;
+    planetpos << endl;
+    planetvel  << endl;
     while (t<time_period)
     {
-        outfile <<Hour;
+        planetpos << Hour;
+        planetvel  << Hour;
         for (int i=0; i<2*n; i++)
         {
-            outfile <<"        "<< setw(8)<<setprecision(5)<<P(i);
+            planetpos <<"        "<< setw(8)<<setprecision(5)<<P(i);
+            planetvel <<"        "<< setw(8)<<setprecision(5)<<V(i);
         }
-        outfile<<endl;
+        planetpos << endl;
+        planetvel  << endl;
 
         // Optional methods:
         //Euler();
         RK4();
+        //Verlet();
 
         Hour+=1;
         t+=dt;
     }
-    outfile.close();
+    planetpos.close();
+    planetvel.close();
     cout<<P(2) <<endl;
+    cout<<P(3) <<endl;
+    cout<<V(2) <<endl;
+    cout<<V(3) <<endl;
+
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -181,21 +216,22 @@ void System::Solve(double time_period)
 
 int main()
 {
+    System Solarsystem;
+    Solarsystem.Addplanet("Sun", 0.0, 0.0, 0.0, 0.0, 2e30);
+    Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, 2*3.1415926, 6e24);
+    //Solarsystem.Addplanet("Moon", 0.99744, 0.0,0.0, -0.21498+ 2*3.14, 7.3477e22);
+    Solarsystem.Addplanet("Mars", 1.52, 0.0, 0.0, 5.0963, 6.6e23);
+    Solarsystem.Addplanet("Jupiter",5.20,0.0,0.0, 2.7554,1.9e27);
 
-System Solarsystem;
-Solarsystem.Addplanet("Sun", 0.0, 0.0, 0.0, 0.0, 2e30);
-Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, 2*3.14, 6e24);
-//Solarsystem.Addplanet("Moon", 0.99744, 0.0,0.0, -0.21498+ 2*3.14, 7.3477e22);
-//Solarsystem.Addplanet("Mars", 1.52, 0.0, 0.0, 5.0963, 6.6e23);
-//Solarsystem.Addplanet("Jupiter",5.20,0.0,0.0,-2.7554,1.9e27);
-//for (int i=0; i<Solarsystem.n; i++)
-//{
-//    cout << Solarsystem.planets[i]<<endl;
-//}
 
-Solarsystem.Setup();
-Solarsystem.Solve(1.);
+    //for (int i=0; i<Solarsystem.n; i++)
+    //{
+    //    cout << Solarsystem.planets[i]<<endl;
+    //}
 
-system("python /home/filiphl/Desktop/project3/p3plot.py");  //Runs the python script for plotting.
+    Solarsystem.Setup();
+    Solarsystem.Solve(12.);
+
+    system("python /home/filiphl/Desktop/project3/p3plot.py");  //Runs the python script for plotting.
     return 0;
 }
