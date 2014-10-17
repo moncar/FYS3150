@@ -61,7 +61,7 @@ ostream& operator<< (ostream &out, Planet &planet)
 class System
 {
 private:
-    double G = 39.478;  //4*pi^2 AU^3 * M_sun^-1 * yr^-2
+    double G =4*M_PI*M_PI; //39.478; (4*pi^2 AU^3 * M_sun^-1 * yr^-2)
     double dt;       //Time-step in years.
     vec P;      // vector containing all positions.
     vec V;      // vector containing all velocities.
@@ -73,6 +73,7 @@ public:
     void Addplanet(string nm, double x0, double y0, double vx0, double vy0, double m);
     void Setup();
     void Solve(double);
+    vec Centerofmass(vec C);
     void Euler();
     void RK4();
     void Verlet();
@@ -123,8 +124,21 @@ vec System::Acceleration(vec A)
             B(2*j+1) += -Fy/planets[j].mass;
         }
     }
-
     return B;
+}
+
+vec System::Centerofmass(vec C)
+{
+    vec CM = zeros<vec>(2);
+    double M=0;
+    for (int i=0;i<n;i++)
+    {
+        M+= planets[i].mass;
+        CM(1) += planets[i].mass*C(2*i);
+        CM(2) += planets[i].mass*C(2*i+1);
+    }
+    CM = CM/M;
+    return CM;
 }
 
 void System::Euler()    //Advancing one time-step.
@@ -216,12 +230,12 @@ void System::Solve(double time_period)
 
 int main()
 {
+    double g = 4*M_PI*M_PI;
     System Solarsystem;
     Solarsystem.Addplanet("Sun", 0.0, 0.0, 0.0, 0.0, 2e30);
-    Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, 2*3.1415926, 6e24);
-    //Solarsystem.Addplanet("Moon", 0.99744, 0.0,0.0, -0.21498+ 2*3.14, 7.3477e22);
-    Solarsystem.Addplanet("Mars", 1.52, 0.0, 0.0, 5.0963, 6.6e23);
-    Solarsystem.Addplanet("Jupiter",5.20,0.0,0.0, 2.7554,1.9e27);
+    Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, sqrt(g), 6e24);
+    Solarsystem.Addplanet("Mars", 1.52, 0.0, 0.0, sqrt(g/1.52), 6.6e23);
+    Solarsystem.Addplanet("Jupiter",5.20,0.0,0.0, sqrt(g/5.20), 1.9e27);
 
 
     //for (int i=0; i<Solarsystem.n; i++)
@@ -230,7 +244,7 @@ int main()
     //}
 
     Solarsystem.Setup();
-    Solarsystem.Solve(12.);
+    Solarsystem.Solve(1.);
 
     system("python /home/filiphl/Desktop/project3/p3plot.py");  //Runs the python script for plotting.
     return 0;
