@@ -15,19 +15,64 @@ for i in range(2*n):
 time = []
 for line in infile:			#Stores the data in arrays.
 	words = line.split()
-	time.append(float(words[0]))	#Time. Not that I ever use it...
+	time.append(float(words[0]))	#Time. Not that I ever use it...LOL.
 	for i in range(2*n):
 		planets[i].append(float(words[i+1]))
 
 #Plot of every planet/star/whatever 
 for i in range(n):
 	if i == 0:
-		plt.plot(planets[i*2], planets[i*2 +1], '*')
+		plt.plot(planets[i*2], planets[i*2 +1], '*', linewidth=2.0)
 	else:
-		plt.plot(planets[i*2], planets[i*2 +1], '-')
+                plt.plot(planets[i*2], planets[i*2 +1], '-', linewidth=2.0)
 	plt.hold('on')
 plt.xlabel('x / AU')
 plt.ylabel('y / AU')
-plt.legend(names[1::2])	#Skips the first element, and every other element.
+plt.legend(names[1::2],numpoints=1)	#Skips the first element, and every other element.
+plt.axis('equal')
+yrs = time[-1]/(24.0*365.0)
+plt.title('Time period: %.1f years.' %yrs)
+plt.grid()
+
+#Plotting the energies...
+#Reading in the data.
+infile = open("/home/filiphl/Desktop/project3/PlanetEnergy.txt", "r")
+
+time = []
+Ek = []
+Ep = []
+E = []
+infile.readline()
+for line in infile:			#Stores the data in arrays.
+	words = line.split()
+	time.append(float(words[0])/(365.*24.))	#Time. Not that I ever use it...LOL.
+	Ek.append(float(words[1]))
+	Ep.append(float(words[2]))
+	E.append(float(words[3]))
+
+plt.figure(2)
+plt.plot(time,Ek, '-', linewidth=2.0)
+plt.hold("on")
+plt.plot(time,Ep, '-', linewidth=2.0)
+plt.plot(time,E, '-', linewidth=2.0)	
+plt.xlabel('Years')
+plt.ylabel('Energy')
+plt.title('Energy of the system')
+plt.legend(["Kinetic","Potential", "Total"])
+plt.axis([min(time), max(time), min(Ep)*1.1, max(Ek)*1.1])
+
+plt.figure(3)
+plt.subplot(3,1,1)
+plt.plot(time,Ek)
+plt.legend(["Kinetic"])
+plt.subplot(3,1,2)
+plt.plot(time,Ep)
+plt.ylabel('Energy')
+plt.legend(["Potential"])
+plt.subplot(3,1,3)
+plt.plot(time,E)	
+plt.xlabel('Years')
+plt.legend(["Total"])
+
 plt.show()
 	
