@@ -178,11 +178,7 @@ void System::Solve(double time_period)
     planetpos <<"Number_of_objects:"<<"       " << n<<endl; // I use this in python...
     planetpos <<"Hours";
     planetvel << "Hours";
-<<<<<<< HEAD
     planetenergy<<setw(8)<<"Hours"<<"     "<<setw(20)<<"Kinetic energy:  "<<"        "<<setw(20)<<"Potatial energy:  "<<"        "<<setw(20)<<"Total energy:  "<<endl;
-=======
-    planetenergy<<setw(8)<<"Year"<<"     "<<setw(20)<<"Kinetic energy:  "<<"        "<<setw(20)<<"Potatial energy:  "<<"        "<<setw(20)<<"Total energy:  "<<endl;
->>>>>>> FETCH_HEAD
 
     for (int i=0; i<n; i++)
     {
@@ -206,11 +202,7 @@ void System::Solve(double time_period)
         RK4();
         //Verlet();
 
-<<<<<<< HEAD
         if (Hour == 24.*c)  //365*24*c/20.  // The energy levels doesn't change that rapidly..
-=======
-        if (Hour == 365*24*c/20.)   // The energy levels doesn't change that rapidly..
->>>>>>> FETCH_HEAD
         {
             double Ek=0;
             double Ep=0;
@@ -219,11 +211,7 @@ void System::Solve(double time_period)
                 Ek+=Energy(P,V)(2*i);
                 Ep+=Energy(P,V)(2*i+1);
             }
-<<<<<<< HEAD
             planetenergy<<setw(8)<<Hour<<"     "<<setw(20)<<setprecision(12)<<Ek<<"      "<<setw(20)<<setprecision(12)<<Ep<<"     "<<setw(20)<<setprecision(12)<<sum(Energy(P,V))<<endl;
-=======
-            planetenergy<<setw(8)<<c/20.<<"     "<<setw(20)<<setprecision(12)<<Ek<<"      "<<setw(20)<<setprecision(12)<<Ep<<"     "<<setw(20)<<setprecision(12)<<sum(Energy(P,V))<<endl;
->>>>>>> FETCH_HEAD
             c+=1;
         }
 
@@ -233,14 +221,11 @@ void System::Solve(double time_period)
     planetpos.close();
     planetenergy.close();
 
-<<<<<<< HEAD
     for (int i=0; i<n;i++)
         if (planets[i].name == "Earth")
         {
             cout<<"x: "<<setw(15)<<setprecision(10)<< P(2*i)<<"      y: "<<setprecision(10)<<setw(15)<<P(2*i+1)<<endl;
         }
-=======
->>>>>>> FETCH_HEAD
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -251,7 +236,6 @@ int main()
     double g = 4*M_PI*M_PI;
     System Solarsystem;
     Solarsystem.Addplanet("Sun", 0.0, 0.0, 0.0, 0.0, 2e30);
-<<<<<<< HEAD
     Solarsystem.Addplanet("Mercury", 0.39, 0.0, 0.0, sqrt(g/0.39), 2.4e23);
     Solarsystem.Addplanet("Venus", 0.72 ,0.0 ,0.0 , sqrt(g/0.72), 4.9e24);
     Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, sqrt(g), 6e24);
@@ -264,20 +248,6 @@ int main()
     //Solarsystem.Addplanet("ObjectX", 1.0, 0.0, 0.0, 0.99*sqrt(2*g), 6e14);  //x=1, vy=sqrt(2*g) escapes!
     Solarsystem.Setup();
     Solarsystem.Solve(30.);
-=======
-//    Solarsystem.Addplanet("Mercury", 0.39, 0.0, 0.0, sqrt(g/0.39), 2.4e23);
-//    Solarsystem.Addplanet("Venus", 0.72 ,0.0 ,0.0 , sqrt(g/0.72), 4.9e24);
-    Solarsystem.Addplanet("Earth", 1.0, 0.0, 0.0, sqrt(g), 6e24);
- //   Solarsystem.Addplanet("Mars", 1.52, 0.0, 0.0, sqrt(g/1.52), 6.6e23);
-    Solarsystem.Addplanet("Jupiter",5.20,0.0,0.0, sqrt(g/5.20), 1.9e27);
-//    Solarsystem.Addplanet("Saturn",9.54,0.0,0.0, sqrt(g/9.54), 5.5e26);
-//    Solarsystem.Addplanet("Uranus", 19.19, 0.0, 0.0, sqrt(g/19.19), 8.8e25);
-//    Solarsystem.Addplanet("Neptun", 30.06, 0.0, 0.0, sqrt(g/30.06), 1.03e26);
-//    Solarsystem.Addplanet("Pluto", 39.53, 0.0,0.0,sqrt(g/39.53), 1.31e22);
-    //Solarsystem.Addplanet("ObjectX", 1.0, 0.0, 0.0, 0.99*sqrt(2*g), 6e14);  //x=1, vy=sqrt(2*g) escapes!
-    Solarsystem.Setup();
-    Solarsystem.Solve(3);
->>>>>>> FETCH_HEAD
 
     system("python /home/filiphl/Desktop/project3/p3plot.py");  //Runs the python script for plotting.
     system("rm /home/filiphl/Desktop/project3/Planet*.txt");  //Deletes datafiles.
