@@ -24,7 +24,11 @@ for i in range(n):
 	if i == 0:
 		plt.plot(planets[i*2], planets[i*2 +1], '*', linewidth=2.0)
 	else:
+<<<<<<< HEAD
                 plt.plot(planets[i*2], planets[i*2 +1], '-', linewidth=2.0)
+=======
+                plt.plot(planets[i*2], planets[i*2 +1], '-', linewidth=3.0)
+>>>>>>> FETCH_HEAD
 	plt.hold('on')
 plt.xlabel('x / AU')
 plt.ylabel('y / AU')
@@ -45,25 +49,40 @@ E = []
 infile.readline()
 for line in infile:			#Stores the data in arrays.
 	words = line.split()
+<<<<<<< HEAD
 	time.append(float(words[0])/(365.*24.))	#Time. Not that I ever use it...LOL.
+=======
+	time.append(float(words[0]))	#Time. Not that I ever use it...LOL.
+>>>>>>> FETCH_HEAD
 	Ek.append(float(words[1]))
 	Ep.append(float(words[2]))
 	E.append(float(words[3]))
 
 plt.figure(2)
+<<<<<<< HEAD
 plt.plot(time,Ek, '-', linewidth=2.0)
 plt.hold("on")
 plt.plot(time,Ep, '-', linewidth=2.0)
 plt.plot(time,E, '-', linewidth=2.0)	
+=======
+plt.plot(time,Ek)
+plt.hold("on")
+plt.plot(time,Ep)
+plt.plot(time,E)	
+>>>>>>> FETCH_HEAD
 plt.xlabel('Years')
 plt.ylabel('Energy')
 plt.title('Energy of the system')
 plt.legend(["Kinetic","Potential", "Total"])
+<<<<<<< HEAD
 plt.axis([min(time), max(time), min(Ep)*1.1, max(Ek)*1.1])
+=======
+>>>>>>> FETCH_HEAD
 
 plt.figure(3)
 plt.subplot(3,1,1)
 plt.plot(time,Ek)
+<<<<<<< HEAD
 plt.legend(["Kinetic"])
 plt.subplot(3,1,2)
 plt.plot(time,Ep)
@@ -72,6 +91,16 @@ plt.legend(["Potential"])
 plt.subplot(3,1,3)
 plt.plot(time,E)	
 plt.xlabel('Years')
+=======
+plt.xlabel('Years')
+plt.ylabel('Energy')
+plt.legend(["Kinetic"])
+plt.subplot(3,1,2)
+plt.plot(time,Ep)
+plt.legend(["Potential"])
+plt.subplot(3,1,3)
+plt.plot(time,E)	
+>>>>>>> FETCH_HEAD
 plt.legend(["Total"])
 
 plt.show()
