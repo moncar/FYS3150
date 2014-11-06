@@ -1,3 +1,7 @@
+/*
+ *  These functions will only do one single iteration
+*/
+
 #include "schemes.h"
 using namespace arma;
 
@@ -26,10 +30,9 @@ vec Schemes::Implicit(vec y)
 {
     int n = y.n_elem;
     // Au=y   , A is a matrix and u and y are vectors.
-    // Elements of A are all constants so there is no need of a matrix.
+    // Elements of A are all constants so there is no need to construct a matrix.
     double a = -alpha;
     double b = 1+2*alpha;
-    //Make one time iteration:
     vec u = Tridiag(y, a, b, a);    //Solves the tridiagonal matrix equation. Returning the u in Au=y.
     u(0) = 0;      //Boundary condition
     u(n-1) = 0;   //Boundary condition
@@ -61,7 +64,6 @@ vec Schemes::Crank_Nicolson(vec u)
     return y;
 }
 
-
 vec Schemes::Tridiag(vec x, double a, double b, double c)
 {
     int N = x.n_elem;
@@ -84,17 +86,6 @@ vec Schemes::Tridiag(vec x, double a, double b, double c)
     v(N-1) = p(N-1);
     for (int i = N-2; i>=0; i--){   //Backward substitution.
         v(i) = p(i)-g(i)*v(i+1);
-    }
-    return v;
-}
-
-double u(double x, double t)
-{
-    double L =10;
-    double v = 0;
-    for (int n=1; n<100; n++)
-    {
-        v+= (-2/(n*M_PI))*sin(M_PI*n*x/L)*exp(-pow((M_PI*n/L),2)*t);
     }
     return v;
 }
