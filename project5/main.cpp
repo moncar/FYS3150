@@ -8,6 +8,9 @@
 #include <plot.h>
 //#include <schemes.h>
 #include <schemes2d.h>
+#include <vector>
+#include <random>
+
 
 using namespace std;
 using namespace arma;
@@ -37,6 +40,10 @@ mat Analytical(double t , vec x, vec y)
 
 int main()
 {
+
+    /*
+     * Monte Carlo a)
+
     vec r;
     int nr_of_bins = 100;
     int nr_of_particles = 10000;
@@ -86,9 +93,30 @@ int main()
     //Plot p(linspace(0,1,nr_of_bins), particles);
     //p.Show();
 
+    */
 
+
+    //********Monte Carlo b)*********//
+    /*Since there is no longer an integer times l_0 steplength,
+    we can no longer use the configuration above. We can no longer
+    use a vector telling how many particles are in the one x-position,
+    because most likely none of the particles are at the same place
+    at all! Except off course at the boundary x=0. Instead, let's
+    make a vector, containing the position of all particles.
+    As there comes more particles into to system, we add their position
+    to the vector. If any particle passes the boundary, we delete the
+    element. At all times we keep the boundary values constant.
+
+    */
 
     /*
+    int nr_of_particles = 1000;
+    std::vector<double> positons(1000);
+    std::fill (positons.begin(),positons.end(), 0);
+    double eps;
+*/
+
+
     int N = 21;
     double dt = 0.004;
     double dx = 0.2;
@@ -143,10 +171,12 @@ int main()
         inst +=1;
         c+=1;
         t+=dt;
+    }
 
-        /*A = Analytical(t,x,y);   // Calculates the analytical solution.
-
+        A = Analytical(t,x,y);   // Calculates the analytical solution.
+        char str[50];
         sprintf(str, "/home/filiphl/Desktop/figs/plot%d.txt", c);
+        fstream plot1;
         plot1.open(str, ios::out);
         for (int i=0; i<N; i++)
         {
@@ -156,7 +186,6 @@ int main()
             }
             plot1 << endl;
         }
-        */
 
 
     return 0;
