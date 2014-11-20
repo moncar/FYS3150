@@ -50,7 +50,7 @@ int main()
     int nbins = 100;
     int npart = 10000;
     vec part = zeros<vec>(nbins);
-    vec new_dist;
+    vec new_M;
     vec a = part;
     part(0) = npart;
     fstream hist1;
@@ -63,7 +63,7 @@ int main()
             hist1 << setw(10) <<  part(k)/npart;
         }
         hist1<<endl;
-        new_dist = part;
+        new_M = part;
         for (int i = 0; i<nbins-1; i++)
         {
             r = randu<vec>(part(i));
@@ -72,19 +72,19 @@ int main()
             {
                 if (r(j) > 0.5)
                 {
-                    new_dist(i+1)+= 1;
+                    new_M(i+1)+= 1;
                 }
                 else
                 {
                     if (i != 0)
                     {
-                        new_dist(i-1)+= 1;
+                        new_M(i-1)+= 1;
                     }
                 }
-                new_dist(i)-= 1;
+                new_M(i)-= 1;
             }
         }
-        part = new_dist;
+        part = new_M;
         part(0) = npart;
         part(nbins - 1) = 0;
     }
@@ -114,14 +114,13 @@ int main()
 
 
 
-    int nbins = 10;
-    int npart = 1000;
-    mat new_dist = zeros<mat>(nbins, nbins);
+    int nbins = 100;
+    int npart = 10000;
+    mat new_M = zeros<mat>(nbins, nbins);
     mat M(nbins, nbins);
     vec rx, ry;
+
     // Set up initial state
-
-
     for (int i = 0; i<nbins; i++)
     {
         M(i,0) = npart/nbins;
@@ -131,63 +130,80 @@ int main()
     //mat1.open("/home/filiphl/Desktop/figs/mat1.txt", ios::out);
 
     int m;
+    int c=0;
+    double prosess;
+    double timelimit = 5000;
     // Start iterations
-    for (int t = 0; t<1; t++)
+    for (int t = 0; t<timelimit; t++)
     {
-        new_dist = zeros<mat>(nbins, nbins);
-        cout << t <<endl;
+        new_M = zeros<mat>(nbins, nbins);
 
-        for (int i = 0; i< nbins; i++)
+        for (int i = 0; i<nbins; i++)
         {
             for (int j=0; j<nbins; j++)
             {
-                m = M(i,j);
-                cout <<m<<endl;
+                m = M(i, j);
                 if (m!=0)
                 {
                     rx = randu<vec>(m);
                     ry = randu<vec>(m);
-                    for ( int n=0; n<m; n++ )
+                    for ( int n=0; n<m; n++ )   // Loop over all particles in the position (i,j)
                     {
-                        if ( (rx(n) > 0.5) && j!=nbins-1 )  { new_dist(i, j+1) += 1; }
-                        else if ( (j != 0) && (j!=nbins-1) ) { new_dist(i, j-1) +=1; }
-
-                        if (ry(n)>0.5)
+                        if ( (rx(n) > 0.5) && (ry(n) > 0.5) && (j!=nbins-1) )
                         {
-                            if (i== nbins-1) { new_dist(0,j) += 1; }
-                            else { new_dist(i+1,j) += 1; }
-                        }
-                        else
-                        {
-                            if (i==0) { new_dist(nbins-1,j) += 1; }
-                            else { new_dist(i-1,j) += 1; }
+                            if (i==nbins-1) { new_M(0, j+1) += 1;}
+                            else {new_M(i+1,j+1) += 1;}
                         }
 
+                        if ( (rx(n) > 0.5) && (ry(n) < 0.5) && (j!=nbins-1) )
+                        {
+                            if (i==0) { new_M(nbins-1, j+1) += 1;}
+                            else {new_M(i-1, j+1) += 1;}
+                        }
+
+                        if ( (rx(n) < 0.5) && (ry(n) > 0.5) && (j!=0) )
+                        {
+                            if (i==nbins-1) { new_M(0, j-1) += 1;}
+                            else {new_M(i+1, j-1) += 1;}
+                        }
+
+                        if ( (rx(n) < 0.5) && (ry(n) < 0.5) && (j!=0) )
+                        {
+                            if (i==0) { new_M(nbins-1, j-1) += 1;}
+                            else {new_M(i-1, j-1) += 1;}
+                        }
                     }
                 }
             }
         }
-        M = new_dist;
+        M = new_M;
         for (int i=0; i<nbins; i++)
         {
-            M(i,0) = npart/nbins;
-            M(i,nbins-1) = 0;
+            M(i, 0) = npart/nbins;
+            M(i, nbins-1) = 0;
         }
-
-        fstream mat1;
-        char str[100];
-        sprintf(str, "/home/filiphl/Desktop/figs/mat%d.txt", t);
-        mat1.open(str, ios::out);
-
-
-        for (int i =0; i<nbins; i++)
+        if (c==100)
         {
-            for (int j=0; j<nbins; j++)
+            fstream mat1;
+            char str[100];
+            sprintf(str, "/home/filiphl/Desktop/figs/mat%d.txt", t);
+            mat1.open(str, ios::out);
+
+
+            for (int i=0; i<nbins; i++)
             {
-                mat1 <<  setw(20) << M(i,j);   //writes the matrix.
+                for (int j=0; j<nbins; j++)
+                {
+                    mat1 <<  setw(20) << M(i,j);   //writes the matrix.
+                }
+                mat1 << endl;
             }
-            mat1 << endl;
+            c=0;
+            prosess += 100;
+            cout << 100*prosess/timelimit<<"% finished"<<endl;
         }
+        c+=1;
+
 
     }
 
@@ -204,13 +220,13 @@ int main()
                 {
                     if ( (rx(j) > 0.5) && (i!=nbins-1) )
                     {
-                        new_distx(i+1)+= 1;
+                        new_Mx(i+1)+= 1;
                     }
                     else
                     {
                         if ( (i != 0) && (i!=nbins-1) )
                         {
-                            new_distx(i-1)+= 1;
+                            new_Mx(i-1)+= 1;
                         }
                     }
                 }
@@ -226,33 +242,33 @@ int main()
 
                         if (i == nbins-1)
                        {
-                           new_disty(0)+= 1;
+                           new_My(0)+= 1;
                        }
 
                         else
                         {
-                            new_disty(i+1)+= 1;
+                            new_My(i+1)+= 1;
                         }
                     }
                     else
                     {
                         if (i == 0)
                         {
-                            new_disty(nbins-1)+= 1;
+                            new_My(nbins-1)+= 1;
                         }
                         else
                         {
-                            new_disty(i-1)+= 1;
+                            new_My(i-1)+= 1;
                         }
                     }
                 }
             }
         }
 
-        partx = new_distx;
+        partx = new_Mx;
         partx(0) = npart;
         partx(nbins - 1) = 0;
-        party = new_disty;
+        party = new_My;
 
         if (c == 50)
         {
