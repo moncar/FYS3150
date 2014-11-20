@@ -1,0 +1,465 @@
+\documentclass[norsk, a4paper]{article}
+
+\usepackage[T1]{fontenc}    % Riktig fontencoding
+\usepackage[utf8]{inputenc} % Riktig tegnsett
+\usepackage{babel}          % Ordelingsregler, osv
+\usepackage{graphicx}       % Inkludere bilder
+\usepackage{booktabs}       % Ordentlige tabeller
+\usepackage{url}            % Skrive url-er
+\usepackage{textcomp}       % Den greske bokstaven micro i text-mode
+\usepackage{units}          % Skrive enheter riktig
+\usepackage{float}          % Figurer dukker opp der du ber om
+\usepackage{lipsum}         % Blindtekst
+\usepackage{subcaption} 
+\usepackage{color}
+\usepackage{amsmath}  
+\usepackage{braket} 
+\usepackage{multicol}
+\usepackage{amsfonts}
+\usepackage{setspace}
+\usepackage[cm]{fullpage}		% Smalere marger.
+\usepackage{verbatim} % kommentarfelt.
+\setlength{\columnseprule}{1pt}	%(width of separationline)
+\setlength{\columnsep}{1.0cm}	%(space from separation line)
+\newcommand\lr[1]{\left(#1\right)} 
+\newcommand\bk[1]{\langle#1\rangle} 
+\newcommand\uu[1]{\underline{\underline{#1}}} % Understreker dobbelt.
+
+
+
+% JF i margen
+\makeatletter
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{-2cm}%
+{-\baselineskip}{0.5\baselineskip}{\bf\large}}
+\makeatother
+\newcommand{\jf}[1]{\subsubsection*{JF #1}\vspace*{-2\baselineskip}}
+
+% Skru av seksjonsnummerering
+\setcounter{secnumdepth}{-1}
+
+\begin{document}
+\renewcommand{\figurename}{Figure}
+% Forside
+\begin{titlepage}
+\begin{center}
+
+\textsc{\Large FYS3150 - Computational Physics}\\[0.5cm]
+\rule{\linewidth}{0.5mm} \\[0.4cm]
+{ \huge \bfseries  Project 4}\\[0.10cm]
+\rule{\linewidth}{0.5mm} \\[1.5cm]
+\textsc{\Large Diffusion of neurotransmitters in the synaptic cleft}\\[1.5cm]
+\textsc{}\\[1.5cm]
+
+% Av hvem?
+\begin{minipage}{0.49\textwidth}
+    \begin{center} \large
+        Filip Henrik Larsen\\[0.8cm]
+    \end{center}
+\end{minipage}
+
+
+\vfill
+
+% Dato nederst
+\large{Date: \today}
+
+\end{center}
+\end{titlepage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{multicols*}{2}
+
+\section{Introduction}
+In this problem we had a look at different methods of solving diffusion equations, and as a specific problem we considered diffusion of neurotransmitters in the synaptic cleft. 
+
+\section{Diffusion equations}
+A diffusion equation is a partial differential equation on the form
+\begin{align*}
+\frac{\partial u(r,t)}{\partial t} = D\nabla u(r,t)
+\end{align*}
+where D is the diffusion constant. In this project we had D=1 and we only considered a one dimensional problem. The equation we were to solve therefore looked like
+\begin{align*}
+\frac{\partial u(x,t)}{\partial t} = \frac{\partial^2 u(x,t)}{\partial x^2}
+\end{align*}
+These equations can be solved both analytically and numerically, as we will do later on. A solution to the equation is a function $u(x,t)$ which satisfy the equation above. However in order to do so we must have initial- and boundary conditions. The solution must obey them as well. In this project $u(x,t)$ represented the distribution of neurotransmitters in the synaptic cleft at a time $t$. We defined the length of the synaptic cleft to be $L$ so that the presynaptic and postsynaptic membranes were positioned at $x=0$ and $x=L$ respectively.
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width = 0.8\linewidth ]{/users/filiphl/Desktop/Studie/fys3150/Project4/figur1.png}
+  \caption{Schematic drawing of the synaptic cleft in our model. The black dots represent neurotransmitter molecules, and the situation shown corresponds to $t=0$.}\label{fig:illustration}
+  \end{center}
+\end{figure}
+
+The initial condition we were given was that all the neurotransmitters were to be at the presynaptic membrane, as Figure \ref{fig:illustration} illustrates nicely. We also had boundary conditions at both ends of the spatial interval. At the presynaptic membrane ($X=0$) the concentration of neurotransmitters should always be equal one. At the other end, at the postsynaptic membrane, it should always equal zero. Written mathematically the conditions were
+\begin{align}
+\phantom{~~~, x>0}u(x,0) &= 0~~~, x>0 \label{init}\\*
+u(0,t) &= 1    \label{Bound1} \\*
+u(L,t) &= 0    \label{Bound2}
+\end{align} 
+After a "long time" the distribution function $u(x,t)$ has diverged to a so-called steady state solution. At this point it will no longer change with time. For a system such as here, the steady state solution will take a linear form
+\begin{align*}
+u_s(x) = Ax+b
+\end{align*}
+Boundary condition \eqref{Bound1} gives $b=1$, and \eqref{Bound2} gives $A = -1/L$. Thus the steady state is
+\begin{align}
+u_s(x) = 1-\frac{x}{L} \label{sss}
+\end{align}
+We now define another function
+\begin{align}
+v(x,t) = u(x,t) - u_s(x)    \label{vfunction}
+\end{align}
+Which is the difference between the state we're in and the steady state. The reason we do this is because we obtain dirichlet boundary conditions, which is easier to work with both analytically and numerically. We obtain the initial- and boundary conditions
+\begin{align}
+v(x,0) &= x/L -1     \label{vinit} \\*
+v(0,t) &= 0    \label{vBound1} \\*
+v(L,t) &= 0    \label{vBound2}
+\end{align} 
+\subsection{Analytical solution}
+We will now try to derive the solution to the diffusion equation of the function, as this also gives the solution of $u(x,t)$.
+We have the equation
+\begin{align}
+\frac{\partial v(x,t)}{\partial t} = \frac{\partial^2 v(x,t)}{\partial x^2}
+\label{vdiffeq}
+\end{align}
+We use a technique called separation of variables to solve this, meaning we assume that 
+\begin{align*}
+v(x,t) = X(x)T(t)
+\end{align*}
+Which transforms \eqref{vdiffeq} into
+\begin{align*}
+\frac{1}{T(t)}\frac{\partial T(t)}{\partial t} = \frac{1}{X(x)}\frac{\partial^2 X(x)}{\partial x^2}
+\end{align*}
+We allow this to equal some constant $-\lambda^2$. The equations we have is thus
+\begin{align*}
+\frac{\partial^2 X(x)}{\partial x^2} + X(x)\lambda^2 = 0
+\end{align*}
+with the solution
+\begin{align*}
+X(x) = A\sin(\lambda x) + B\cos(\lambda x
+\end{align*}
+The boundary conditions will now restrict the constants. 
+\begin{align*}
+\eqref{vBound1} ~\Rightarrow~B=0
+\end{align*}
+\begin{align*}
+\eqref{vBound2} ~\Rightarrow~A\sin(\lambda x) = 0 ~\Rightarrow~\lambda = \frac{\pi n}{L}~~,n \in \mathbb{Z}
+\end{align*}
+We assume $n>0$ because the negative values are only linear combinations of the positive, and thus the positive values alone span the entire space.
+\\*The time dependent function has to obey
+\begin{align*}
+\frac{\partial T(t)}{\partial t} + T(t)\lambda^2 = 0
+\end{align*}
+Which has the solution
+\begin{align*}
+Ce^{-\lambda^2t}
+\end{align*}
+where C is some constant. The solution to the diffusion equation \eqref{vdiffeq} is thus
+\begin{align*}
+v(x,t) = \sum_{n=1}^\infty A_n\sin\lr{\frac{\pi n}{L}x}e^{-{\lr{\frac{\pi n}{L}}^2t}} 
+\end{align*}
+Where the constant $C$ in the time dependent function has been absorbed in $A_n$. The initial condition \eqref{vinit} gives
+\begin{align*}
+\frac{x}{L}-1 = \sum_{n=1}^\infty A_n\sin\lr{\frac{\pi n}{L}x}
+\end{align*}
+$A_n$ is nothing but the Fourier coefficients of the function $x/L - 1$, therefore
+\begin{align*}
+A_n &= \frac{2}{L}\int_0^L \lr{\frac{x}{L}-1}\sin\lr{\frac{n \pi }{L}x} dx \\*
+&= \frac{2}{n\pi}\bigg((1-L)\cos(n\pi)-1\bigg)
+\end{align*}
+Leaving the analytical solution
+\begin{align*}
+\hspace{-2.5mm} v(x,t) = \sum_{n=1}^\infty \frac{2}{n\pi}\bigg[(1-L)\cos(n\pi)-1\bigg]\sin\lr{\frac{\pi n}{L}x}e^{-{\lr{\frac{\pi n}{L}}^2t}}
+\end{align*}
+In this project we set $L=1$, and therefore the solution of the diffusion equation in this problem were
+\begin{align}
+ v(x,t) = \sum_{n=1}^\infty -\frac{2}{n\pi}\sin\lr{\pi n x}e^{-{\lr{\pi n}^2t}} \label{solutionv}
+\end{align}
+
+\subsection{Numerical solution}
+In order to solve this diffusion equation numerically there are several schemes we could use. In this project we focused on three in particular: the explicit, the implicit and the Crank-Nicolson. I will now present the algorithms for the schemes and their stability properties. Using the discretization 
+\begin{align*}
+x_i &= i\Delta x\\*
+t_j &= j\Delta t\\*
+u_{i,j} &= u(x_i,t_j)
+\end{align*}
+%%%%%%%%%%%%%%% Explicit %%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{The explicit scheme} is written as 
+\begin{align}
+u_t = \frac{u_{i,j+1} - u_{i,j}}{\Delta t} \label{utexplicit}
+\end{align}
+\begin{align}
+u_{xx} = \frac{u_{i+1,j}-2u_{i,j} + u_{i-1,j}}{\Delta x^2} \label{xxexplicit}
+\end{align}
+and thus the equation reads
+\begin{align*}
+ \frac{u_{i,j+1} - u_{i,j}}{\Delta t}  = \frac{u_{i+1,j}-2u_{i,j} + u_{i-1,j}}{\Delta x^2} 
+\end{align*}
+Deffining $\alpha = \Delta t/\Delta x^2$ and rearranging a bit we have
+\begin{align}
+u_{i,j+1} = \alpha u_{i-1,j} + (1-2\alpha)u_{i,j} + \alpha u_{i+1,j} \label{expalgo}
+\end{align}
+Which is the algorithm we use for this scheme. This scheme has a truncation error of order $O(\Delta t)$ for the time-derivative and $O(\Delta x^2)$ for the spatial part. The reason for this is that in the approximations for rate of change in time we do not include terms of higher order than $\Delta t$, and likewise for the double derivative of $x$, we do not include terms containing higher order of $\Delta x$ than $\Delta x^2$. \\*
+\\*
+%%%%%%%%%%%%%%%% Implicit %%%%%%%%%%%%%%%%%%%%%%%
+\textbf{The implicit scheme} is written as
+\begin{equation}
+u_t = \frac{u_{i,j}-u_{i,j+1}}{\Delta t} \label{utimplicit}
+\end{equation}
+\begin{align}
+u_{xx} = \frac{u_{i+1,j}-2u_{i,j} + u_{i-1,j}}{\Delta x^2}
+\end{align}
+resulting in 
+\begin{align*}
+\frac{u_{i,j}-u_{i,j+1}}{\Delta t} = \frac{u_{i+1,j}-2u_{i,j} + u_{i-1,j}}{\Delta x^2} 
+\end{align*}
+We define $\alpha$ as for the explicit scheme and end up with the equation
+\begin{align}
+u_{i,j-1} = -\alpha u_{i-1,j} + (1-2\alpha)u_{i,j} - \alpha u_{i+1,j} \label{impalgo}
+\end{align}
+If we define vectors 
+\begin{equation*}
+    {\bf v}_j = \left(\begin{array}{c}
+                           u_{0,j} \\
+                           u_{1,j} \\
+                           \vdots \\
+                           u_{n,j}
+                      \end{array} \right)
+\end{equation*}
+the above equation can be expressed as a matrix-vector equation. 
+\begin{align}
+{\bf v}_{j-1} = {\bf \hat{A}  v_j} \label{matrixvectoreq}
+\end{align}
+With the matrix ${\bf \hat{A}}$ being the tridiagonal matrix
+\begin{equation*}
+    {\bf A} = \left(\begin{array}{ccccc}
+                           1+2\alpha &-\alpha  & & & \\
+                           -\alpha &1+2\alpha &-\alpha  & & \\
+                            &\ddots &\ddots &\ddots  & \\
+                            &  &-\alpha &1+2\alpha &-\alpha \\
+                            &  & &-\alpha &1+2\alpha \\
+                      \end{array} \right)
+\end{equation*}
+Since we got the initial conditions of the system in this problem we set ${\bf v}_{j-1}$ to be this function. Thus the only unknown quantity in equation \eqref{matrixvectoreq} is ${\bf v}_{j}$. This problem 
+we have solved in project 1, and we used the same technique here. Look up my report on project 1 for an explanation on the algorithms. However, as we find ${\bf v}_{j}$, we have done one iteration in time. Using this new vector as the new ${\bf v}_{j-1}$ we can thus find the function at the next iteration and so on... Also this scheme has a truncation error of order $O(\Delta t)$ for the time-derivative and $O(\Delta x^2)$ for the spatial part.
+\\*\\*
+%%%%%%%%%%%%%%% Crank-Nicolson %%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{The Crank-Nicolson scheme} 
+is a bit different from the others. This scheme make a better approximation of the time derivative by using the midpoint rule. As a result we evaluate the time derivative at $t'=t+\Delta t/2$. Therefore we must also calculate the double derivative with respect to $x$ at this time. Meaning we must approximate
+\begin{align*}
+&&&&&&\frac{\partial u(x,t')}{dt}& &\text{and}& &\frac{\partial^2 u(x,t')}{dx^2}&&&&&&
+\end{align*}
+The way we approximate these terms, is using the midpoint rule.
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width = 0.6\linewidth]{/users/filiphl/Desktop/Studie/fys3150/project4/cnfigure.png}
+  \caption{Calculation molecule for the Crank-Nicolson scheme.}\label{fig:cnfig}
+  \end{center}
+\end{figure}
+\noindent
+Basically we approximate the time derivative of the element $u_{i,j+1/2}$ using the midpoint rule as 
+\[
+\frac{\partial u(x,t')}{dt} \approx \frac{u_{i,j+1}-u_{i,j}}{\Delta t}
+\]
+And we also approximate the spatial part in the same way. We approximate
+as \[
+\frac{\partial^2 u(x,t')}{dx^2} \approx \frac{1}{2}\bigg[ \frac{u_{i+1,j+1}-2u_{i,j+1} + u_{i-1,j+1}}{\Delta x^2} - \frac{u_{i+1,j}-2u_{i,j} + u_{i-1,j}}{\Delta x^2}  \bigg]
+\]
+These have to equal. By introducing again the $\alpha$ and reorganizing this results in
+\begin{equation}
+-\alpha u_{i+1,j+1} + (2+2\alpha)u_{i,j+1} - \alpha u_{i-1,j+1} = \alpha u_{i+1,j} + (2-2\alpha)u_{i,j} - \alpha u_{i-1,j} \label{cnalgo}
+\end{equation}
+Which is the algorithm for the Crank-Nicolson method. This scheme has a truncation error of order $O(\Delta t^2)$ for the time-derivative and $O(\Delta x^2)$ for the spatial part. The reason for the improved approximation of the time-derivative is that we use the midpoint rule.
+All the algorithms shown here can be neatly summarized by the so-called theta method
+\begin{equation*}
+\frac{u_{i,j}-u_{i,j-1}}{\Delta t} = \frac{\theta}{\Delta x^2}\lr{u_{i-1,j} - 2u_{i,j} + u_{i+1,j}}+\frac{1-\theta}{\Delta x^2}\lr{u_{i+1,j-1} - 2u_{i,j-1} + u_{i-1,j-1}}
+\end{equation*}
+where $\theta = 0$ gives the explicit scheme as in \eqref{expalgo}, $\theta = 1$ gives the implicit scheme as in \eqref{impalgo} and $\theta = 1/2$ gives the Crank-Nicolson scheme as in \eqref{cnalgo}.
+\\*\\*
+%%%%%%%%%%%%%%%% Stability %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{The stability} of the schemes can be analyzed  by inspection of the matrices we get when rewriting the algorithms as matrix-vector equations. We did this for the implicit scheme, and using the same definition of the vectors $\textbf{v}_j$ we can show that
+\begin{align*}
+&&&&&\eqref{expalgo}& &\Rightarrow & &{\bf v}_j = {\bf \hat{A}v}_{j-1}& &,{\bf \hat{A}} = {\bf \hat{I}} -\alpha {\bf \hat{B}}&&&&&\\*
+&&&&&\eqref{impalgo}& &\Rightarrow & &{\bf v}_j = {\bf \hat{A}}^{-1}{\bf  v}_{j-1}& &,{\bf \hat{A}} = {\bf \hat{I}} +\alpha {\bf \hat{B}}&&&&&\phantom{\bigg)^2}\\*
+\phantom{\lr{2{\bf \hat{I}} -2\alpha {\bf \hat{B}}}}&&&&&\eqref{cnalgo}& &\Rightarrow & &{\bf v}_j = {\bf \hat{A}v}_{j-1}& &,{\bf \hat{A}} = \lr{2{\bf \hat{I}} +2\alpha {\bf \hat{B}}}^{-1}\lr{2{\bf \hat{I}} -2\alpha {\bf \hat{B}}}&&&&&
+\end{align*}
+where
+\begin{equation*}
+    {\bf \hat{B}} = \left(\begin{array}{ccccc}
+                           2 &-1  & & & \\
+                           -1 &2 &-1  & & \\
+                            &\ddots &\ddots &\ddots  & \\
+                            &  &-1 &2 &-1 \\
+                            &  & &-1 &2 \\
+                      \end{array} \right)
+\end{equation*}
+\\*
+It can be shown that the eigenvalues of this matrix are $2-2\cos\theta$.
+\\*
+
+\noindent The stability of the schemes is given by the spectral radius, $\rho(\hat{A})$ of the matrices $\bf \hat{A}$ above. 
+The spectral radius is defined as
+\[
+\rho(\hat{A}) = \text{max}\bigg\{|\lambda|: det\lr{\hat{A}-\lambda\hat{I}} = 0 \bigg\}
+\]
+Meaning that the spectral radius of a matrix, $\hat{A}$, equals the largest (in magnitude) eigenvalue of this matrix. The criteria for the schemes to be stable is 
+\[
+\rho(\hat{A}) < 1
+\]
+If this criteria is pleased, the resulting vector will converge towards a finite value. In our case toward the so-called steady state solution. The criteria of the spectral radius tells us that for the explicit scheme we have
+\[
+\rho(\hat{I} -\alpha \hat{B})<1
+\]
+\begin{align*}
+-1<1-\alpha 2(1-\cos\theta)&< 1\\*
+0<2\alpha(1-cos\theta)&<2
+\end{align*}
+By definition $\alpha>0$.
+\[
+\alpha < \frac{1}{1-\cos\theta}
+\]
+\[
+\alpha < \frac{1}{2}
+\]
+This means that the explicit scheme is stable as long as $\alpha < 1/2$. 
+\\*
+For the implicit case we have
+\[
+\rho( (\hat{I} +\alpha  \hat{B})^{-1}) < 1
+\]
+\begin{align*}
+-1<\frac{1}{1+\alpha 2(1-\cos\theta)}&< 1
+\end{align*}
+Which obviously is true for all values of $\alpha$ (because $\alpha > 0$), meaning the implicit scheme is stable for any value of $\alpha$!
+For the Crank-Nicolson method we have
+\[
+\rho((2\hat{I} +2\alpha \hat{B})^{-1}(2 \hat{I} -2\alpha  \hat{B})) <1\]
+\[
+-1 < \frac{2-2\alpha(1-\cos\theta)}{2+2\alpha(1-\cos\theta)} < 1
+\]
+Lets look at the criteria separately
+\begin{align*}
+-(2+2\alpha(1-\cos\theta)) &< 2-2\alpha(1-\cos\theta)& 2-2\alpha(1-\cos\theta) &<  2+2\alpha(1-\cos\theta) \\*
+-4&<0& 4\alpha(1-\cos\theta)&>0
+\end{align*}
+As both of these always are true, again because of the definition of $\alpha$, the Crank-Nicolson scheme is stable for any value of $\alpha$.
+
+\section{Results}
+In my script i implemented the schemes in a class in such a way that calling upon it with a function as input it will do one iteration in time, and return a new vector. In the main function we can tweak the variables (limits, number of points, time period...). Setting the spatial step length to $\Delta x = 0.1$ and time step length $\Delta t = 0.005$ we are at the limit of the stability criteria for the explicit scheme. First we took a look at the system in an early stage. We then got the result bellow
+
+\begin{minipage}[t]{0.48\linewidth}
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width = \linewidth]{/users/filiphl/Desktop/Studie/fys3150/Project4/earlystage.png}
+  \caption{Calculated state of the system in an early stage. ($t=0.05$)}\label{fig:fig1}
+  \end{center}
+\end{figure}
+\end{minipage}
+\quad
+\begin{minipage}[t]{0.48\linewidth}
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width = \linewidth]{/users/filiphl/Desktop/Studie/fys3150/Project4/relerrorearlystage.png}
+  \caption{Relative error compared to the analytical solution, in an early stage ($t=0.05$).}\label{fig:fig1}
+  \end{center}
+\end{figure}
+\end{minipage}
+
+\begin{minipage}[t]{0.48\linewidth}
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width = \linewidth]{/users/filiphl/Desktop/Studie/fys3150/Project4/latestage.png}
+  \caption{Calculated state of the system at a later stage. ($t=0.1$)}\label{fig:fig1}
+  \end{center}
+\end{figure}
+\end{minipage}
+\quad
+\begin{minipage}[t]{0.48\linewidth}
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width = \linewidth]{/users/filiphl/Desktop/Studie/fys3150/Project4/relerrorlatestage.png}
+  \caption{Relative error compared to the analytical solution, at a later stage ($t=0.1$).}\label{fig:fig1}
+  \end{center}
+\end{figure}
+\end{minipage}
+
+We see that as time develops the state converges toward the steady state, as expected. I think the figures showing the relative error is the most interesting. We clearly see that the explicit scheme has the greatest relative error, however I was surprised that the Crank-Nicolson wasn't far superior to the implicit as well. It does have a better approximation for the time-derivative, and so I expected a better approximation than the implicit scheme, however for the late stage the implicit is pretty much dead on, and Crank-Nicolson is not! In the early stage the implicit is also the best approximation in the major part of the interval, but close to the end the relative error escalates. The thing is, the error isn't even that big, but the relative error is. With this as my evidence I would say that the implicit scheme is the best one, though this does not make sense to me. 
+
+\section{Github repository}
+\url{https://github.com/filiphl/FYS3150.git}
+ %\end{multicols*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+
+
+\begin{comment}
+
+% deloppgave
+\begin{enumerate}
+\item[\bf a)]
+\item[\bf b)]
+\item[\bf c)]
+\item[\bf d)]
+\end{enumerate}
+
+%%%%%%%%
+% Tabell
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ | c | r | r | r | r | r |}
+    \hline
+    & & & & & \\*
+    \hline
+    & & & & & \\*
+    \hline
+  \end{tabular}
+  \caption{some caption}
+  \label{tab:Tabell1}
+\end{table}
+
+%%%%%%%%
+% Enkel figur
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width = 120mm]{/users/filiphl/Desktop/Studie/Emne/ObligX/filnavn.png}
+  \caption{some caption}\label{fig:fig1}
+  \end{center}
+\end{figure}
+
+%%%%%%%%
+% 2 figurer sbs
+\begin{minipage}[t]{0.48\linewidth}
+  \includegraphics[width=\textwidth]{fil}
+  \caption{}
+  \label{fig:minipage1}
+\end{minipage}
+\quad
+\begin{minipage}[t]{0.48\linewidth}
+\includegraphics[width=\textwidth]{fil}
+  \caption{}
+  \label{fig:minipage1}
+\end{minipage}
+\end{figure}
+
+%%%%%%%%
+% X antall kollonner
+\begin{multicols*}{X}
+\begin{spacing}{0.7} % verticale mellomrom
+%kan f.eks benytte align?
+\end{spacing}
+\end{multicols*}
+
+
+%%%%%%%%
+%Matrise
+\begin{equation*}
+    {\bf A} = \left(\begin{array}{cccccc}
+                           z &z &z &z &z &z \\
+                           z &z &z &z &z &z \\
+                           z &z &z &z &z &z \\
+                           z &z &z &z &z &z \\
+                           z &z &z &z &z &z \\
+                           z &z &z &z &z &z \\
+                      \end{array} \right)
+\end{equation*}
+%%%%%%%%
+
