@@ -7,10 +7,11 @@ SOURCES += main.cpp \
     plot.cpp \
     schemes.cpp \
     schemes2d.cpp \
-    markov_chain.cpp
+    markov_chain.cpp \
+    /home/filiphl/Desktop/FYS3150/project5/cppLibrary/lib.cpp
 
 HEADERS += \
     plot.h \
     schemes.h \
     schemes2d.h \
-    markov_chain.h
+    markov_chain.h \

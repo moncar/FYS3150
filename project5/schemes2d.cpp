@@ -8,7 +8,7 @@ Schemes2d::Schemes2d(double dx, double dt)
 
 mat Schemes2d::Explicit2d(mat U)
 {
-    int n = U.n_cols;
+    int n = U.n_cols;   //Assuming nxn-matrix
     mat V = zeros<mat>(n,n);
     for (int i=1; i<n-1; i++)
     {
@@ -23,7 +23,29 @@ mat Schemes2d::Explicit2d(mat U)
 
 mat Schemes2d::Implicit2d(mat U)
 {
-    int n = U.n_cols;
-    mat V = zeros<mat>(n,n);
+    int n = U.n_cols;   //Assuming nxn-matrix
+    int a = n-2;
+    int N = a*a;
+    mat V = zeros<mat>(N,N);
+    vec u = zeros<vec>(N);
+    vec x = u;
+    for (int i=2; i<=a; i++)
+    {
+        for (int j=2; j<=a; j++)
+        {
+
+            V(i, (i-1)*(n-2)+j) = 1;
+        /*
+            if (i == 1 ||  i== n-1)
+            {
+
+            }
+            */
+        }
+    }
+    cout <<V<<endl;
+    
+    
+    
     return V;
 }

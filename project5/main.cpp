@@ -8,8 +8,9 @@
 #include <plot.h>
 //#include <schemes.h>
 #include <schemes2d.h>
-#include <vector>
-#include <random>
+#include </home/filiphl/Desktop/FYS3150/project5/cppLibrary/lib.h>
+
+
 
 
 using namespace std;
@@ -41,32 +42,33 @@ mat Analytical(double t , vec x, vec y)
 int main()
 {
 
-    /*
-     * Monte Carlo a)
+
+/*
+    // Monte Carlo a)
 
     vec r;
-    int nr_of_bins = 100;
-    int nr_of_particles = 10000;
-    vec particles = zeros<vec>(nr_of_bins);
+    int nbins = 100;
+    int npart = 10000;
+    vec part = zeros<vec>(nbins);
     vec new_dist;
-    vec a = particles;
-    particles(0) = nr_of_particles;
+    vec a = part;
+    part(0) = npart;
     fstream hist1;
     hist1.open("/home/filiphl/Desktop/figs/hist1.txt", ios::out);
 
-    for (int t = 0; t<1000;t++)
+    for (int t = 0; t<2000;t++)
     {
-        for (int k = 0; k<nr_of_bins; k++)
+        for (int k = 0; k<nbins; k++)
         {
-            hist1 << setw(10) <<  particles(k)/nr_of_particles;
+            hist1 << setw(10) <<  part(k)/npart;
         }
         hist1<<endl;
-        new_dist = particles;
-        for (int i = 0; i<nr_of_bins-1; i++)
+        new_dist = part;
+        for (int i = 0; i<nbins-1; i++)
         {
-            r = randu<vec>(particles(i));
+            r = randu<vec>(part(i));
 
-            for (int j=0; j<particles(i); j++)
+            for (int j=0; j<part(i); j++)
             {
                 if (r(j) > 0.5)
                 {
@@ -82,64 +84,180 @@ int main()
                 new_dist(i)-= 1;
             }
         }
-        particles = new_dist;
-        particles(0) = nr_of_particles;
-        particles(nr_of_bins - 1) = 0;
+        part = new_dist;
+        part(0) = npart;
+        part(nbins - 1) = 0;
     }
     hist1.close();
 
-    system("python /home/filiphl/Desktop/figs/hist.py 999");
+    system("python /home/filiphl/Desktop/figs/hist.py 1999");
     system("rm /home/filiphl/Desktop/figs/hist1.txt");
-    //Plot p(linspace(0,1,nr_of_bins), particles);
+    //Plot p(linspace(0,1,nbins), part);
     //p.Show();
 
     */
 
 
+
     //********Monte Carlo b)*********//
     /*Since there is no longer an integer times l_0 steplength,
     we can no longer use the configuration above. We can no longer
-    use a vector telling how many particles are in the one x-position,
-    because most likely none of the particles are at the same place
-    at all! Except off course at the boundary x=0. Instead, let's
-    make a vector, containing the position of all particles.
-    As there comes more particles into to system, we add their position
-    to the vector. If any particle passes the boundary, we delete the
-    element. At all times we keep the boundary values constant.
-
+    use a vector telling how many part are in the one x-position,
+    because most likely none of the part are at the same place
+    at all! Except off course at the boundary x=0. Instead, we let
+    each vector element represent the number of part in a
+    region of the space. This does demand more if-tests, but this
+    is much more efficient than having a vector containing the
+    position of each particle and expand and erase elements as
+    part enter and exit...
     */
 
-    /*
-    int nr_of_particles = 1000;
-    std::vector<double> positons(1000);
-    std::fill (positons.begin(),positons.end(), 0);
-    double eps;
-*/
+
+    vec rx;
+    vec ry;
+    int nbins = 100;
+    int npart = 10000;
+    vec partx = zeros<vec>(nbins);
+    vec party = zeros<vec>(nbins);
+    vec new_distx = zeros<vec>(nbins);
+    vec new_disty = zeros<vec>(nbins);
+    mat M(nbins, nbins);
+    // Set up initial state
+    int a;
+    partx(0) = npart;
+    for (int i = 0; i<npart; i++)
+    {
+        a = (int) floor(rand() % nbins);
+        party(a) +=1;
+    }
 
 
-    int N = 21;
+    //mat1.open("/home/filiphl/Desktop/figs/mat1.txt", ios::out);
+
+    // Start iterations
+    int c = 50;
+    for (int t = 0; t<5000; t++)
+    {
+        new_distx = zeros<vec>(nbins);
+        new_disty = zeros<vec>(nbins);
+
+        for (int i = 0; i< nbins; i++)
+        {
+            if (partx(i) >0)
+            {
+                rx = randu<vec>(partx(i));
+                for (int j=0; j<partx(i); j++)
+                {
+                    if ( (rx(j) > 0.5) && (i!=nbins-1) )
+                    {
+                        new_distx(i+1)+= 1;
+                    }
+                    else
+                    {
+                        if ( (i != 0) && (i!=nbins-1) )
+                        {
+                            new_distx(i-1)+= 1;
+                        }
+                    }
+                }
+            }
+
+            if (party(i) > 0)
+            {
+                ry = randu<vec>(party(i));
+                for (int k = 0; k<party(i); k++)
+                {
+                    if (ry(k) > 0.5)
+                    {
+
+                        if (i == nbins-1)
+                       {
+                           new_disty(0)+= 1;
+                       }
+
+                        else
+                        {
+                            new_disty(i+1)+= 1;
+                        }
+                    }
+                    else
+                    {
+                        if (i == 0)
+                        {
+                            new_disty(nbins-1)+= 1;
+                        }
+                        else
+                        {
+                            new_disty(i-1)+= 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        partx = new_distx;
+        partx(0) = npart;
+        partx(nbins - 1) = 0;
+        party = new_disty;
+
+        if (c == 50)
+        {
+            fstream mat1;
+            char str[100];
+            sprintf(str, "/home/filiphl/Desktop/figs/mat%d.txt", t);
+            mat1.open(str, ios::out);
+
+
+            for (int i =0; i<nbins; i++)
+            {
+                for (int j=0; j<nbins; j++)
+                {
+                    mat1 <<  setw(20) << partx(i)*party(j)/(npart*npart);   //writes a normalized matrix.
+                }
+                mat1 << endl;
+            }
+            c=0;
+        }
+        c+=1;
+    }
+
+
+
+
+
+
+
+
+
+
+/*
+    int N = 5;
     double dt = 0.004;
     double dx = 0.2;
     vec x = linspace(0,1,N);
     vec y = linspace(0,1,N);
-    mat A;
-    mat V0=zeros<mat>(N,N);
-    for (int i = 1; i<N-1; i++)
+    mat U=zeros<mat>(N,N);
+    U.col(0) = 1-x;
+    U.col(N-1)=1-x;
+    U.row(0) = ones<mat>(1,N);
+    mat V0(N,N);
+    for (int i = 0; i<N; i++)
     {
-        V0.col(i) = x-1;
+        V0.col(i)=U.col(i)+x-1;
     }
-    V0.row(0) = zeros<vec>(N).t();
-    V0.row(N-1) = zeros<vec>(N).t();
-
 
     Schemes2d Two(dx,dt);
     mat E, EU = ones<mat>(N,N);
     E = Two.Explicit2d(V0);
 
+    Two.Implicit2d(V0);
+*/
+
+/*
     double t = 0;
     double timelimit = 2;
     int c = 0;
-    int inst = 0;
+    int inst = 10;
 
     while ( t<timelimit)
     {
@@ -172,7 +290,15 @@ int main()
         c+=1;
         t+=dt;
     }
+*/
 
+
+
+
+
+
+
+/*
         A = Analytical(t,x,y);   // Calculates the analytical solution.
         char str[50];
         sprintf(str, "/home/filiphl/Desktop/figs/plot%d.txt", c);
@@ -187,7 +313,7 @@ int main()
             plot1 << endl;
         }
 
-
+*/
     return 0;
 }
 
