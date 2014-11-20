@@ -124,7 +124,7 @@ int main()
 
     for (int i = 0; i<nbins; i++)
     {
-        M(0,i) = npart/nbins;
+        M(i,0) = npart/nbins;
     }
 
 
@@ -132,7 +132,7 @@ int main()
 
     int m;
     // Start iterations
-    for (int t = 0; t<23; t++)
+    for (int t = 0; t<1; t++)
     {
         new_dist = zeros<mat>(nbins, nbins);
         cout << t <<endl;
@@ -142,24 +142,25 @@ int main()
             for (int j=0; j<nbins; j++)
             {
                 m = M(i,j);
+                cout <<m<<endl;
                 if (m!=0)
                 {
                     rx = randu<vec>(m);
                     ry = randu<vec>(m);
                     for ( int n=0; n<m; n++ )
                     {
-                        if ( (rx(n) > 0.5) && i!=nbins-1 )  { new_dist(i+1,j) += 1; }
-                        else if ( (i != 0) && (i!=nbins-1) ) { new_dist(i-1,j) +=1; }
+                        if ( (rx(n) > 0.5) && j!=nbins-1 )  { new_dist(i, j+1) += 1; }
+                        else if ( (j != 0) && (j!=nbins-1) ) { new_dist(i, j-1) +=1; }
 
                         if (ry(n)>0.5)
                         {
-                            if (j==nbins-1) { new_dist(i,0) += 1; }
-                            else { new_dist(i,j+1) += 1; }
+                            if (i== nbins-1) { new_dist(0,j) += 1; }
+                            else { new_dist(i+1,j) += 1; }
                         }
                         else
                         {
-                            if (j==0) { new_dist(i,nbins-1) += 1; }
-                            else { new_dist(i,j-1) += 1; }
+                            if (i==0) { new_dist(nbins-1,j) += 1; }
+                            else { new_dist(i-1,j) += 1; }
                         }
 
                     }
@@ -167,10 +168,10 @@ int main()
             }
         }
         M = new_dist;
-        for (int j=0; j<nbins; j++)
+        for (int i=0; i<nbins; i++)
         {
-            M(j,0) = npart/nbins;
-            M(j, nbins-1) = 0;
+            M(i,0) = npart/nbins;
+            M(i,nbins-1) = 0;
         }
 
         fstream mat1;
@@ -183,7 +184,7 @@ int main()
         {
             for (int j=0; j<nbins; j++)
             {
-                mat1 <<  setw(20) << M(i,j);   //writes a normalized matrix.
+                mat1 <<  setw(20) << M(i,j);   //writes the matrix.
             }
             mat1 << endl;
         }
