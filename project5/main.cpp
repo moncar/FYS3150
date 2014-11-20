@@ -113,37 +113,90 @@ int main()
     */
 
 
-    vec rx;
-    vec ry;
-    int nbins = 100;
-    int npart = 10000;
-    vec partx = zeros<vec>(nbins);
-    vec party = zeros<vec>(nbins);
-    vec new_distx = zeros<vec>(nbins);
-    vec new_disty = zeros<vec>(nbins);
+
+    int nbins = 10;
+    int npart = 1000;
+    mat new_dist = zeros<mat>(nbins, nbins);
     mat M(nbins, nbins);
+    vec rx, ry;
     // Set up initial state
-    int a;
-    partx(0) = npart;
-    for (int i = 0; i<npart; i++)
+
+
+    for (int i = 0; i<nbins; i++)
     {
-        a = (int) floor(rand() % nbins);
-        party(a) +=1;
+        M(0,i) = npart/nbins;
     }
 
 
     //mat1.open("/home/filiphl/Desktop/figs/mat1.txt", ios::out);
 
+    int m;
     // Start iterations
-    int c = 50;
-    for (int t = 0; t<2000; t++)
+    for (int t = 0; t<23; t++)
     {
-        new_distx = zeros<vec>(nbins);
-        new_disty = zeros<vec>(nbins);
+        new_dist = zeros<mat>(nbins, nbins);
+        cout << t <<endl;
 
         for (int i = 0; i< nbins; i++)
         {
-            if (partx(i) >0)
+            for (int j=0; j<nbins; j++)
+            {
+                m = M(i,j);
+                if (m!=0)
+                {
+                    rx = randu<vec>(m);
+                    ry = randu<vec>(m);
+                    for ( int n=0; n<m; n++ )
+                    {
+                        if ( (rx(n) > 0.5) && i!=nbins-1 )  { new_dist(i+1,j) += 1; }
+                        else if ( (i != 0) && (i!=nbins-1) ) { new_dist(i-1,j) +=1; }
+
+                        if (ry(n)>0.5)
+                        {
+                            if (j==nbins-1) { new_dist(i,0) += 1; }
+                            else { new_dist(i,j+1) += 1; }
+                        }
+                        else
+                        {
+                            if (j==0) { new_dist(i,nbins-1) += 1; }
+                            else { new_dist(i,j-1) += 1; }
+                        }
+
+                    }
+                }
+            }
+        }
+        M = new_dist;
+        for (int j=0; j<nbins; j++)
+        {
+            M(j,0) = npart/nbins;
+            M(j, nbins-1) = 0;
+        }
+
+        fstream mat1;
+        char str[100];
+        sprintf(str, "/home/filiphl/Desktop/figs/mat%d.txt", t);
+        mat1.open(str, ios::out);
+
+
+        for (int i =0; i<nbins; i++)
+        {
+            for (int j=0; j<nbins; j++)
+            {
+                mat1 <<  setw(20) << M(i,j);   //writes a normalized matrix.
+            }
+            mat1 << endl;
+        }
+
+    }
+
+
+
+
+
+/*
+
+
             {
                 rx = randu<vec>(partx(i));
                 for (int j=0; j<partx(i); j++)
@@ -222,7 +275,7 @@ int main()
     }
 
 
-
+*/
 
 
 
