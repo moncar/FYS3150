@@ -136,7 +136,7 @@ int main()
 
     // Start iterations
     int c = 50;
-    for (int t = 0; t<5000; t++)
+    for (int t = 0; t<2000; t++)
     {
         new_distx = zeros<vec>(nbins);
         new_disty = zeros<vec>(nbins);
