@@ -44,59 +44,59 @@ int main()
 {
 
 
-    /*
+
     // Monte Carlo a)
 
-    vec r;
-    int nbins = 100;
+
+    int L = 1;
+    double dt = 0.01;
+    double l0= sqrt(2*dt);
     int npart = 10000;
-    vec part = zeros<vec>(nbins);
-    vec new_M;
-    vec a = part;
-    part(0) = npart;
+    long int idum = -1;
+    double r;
+    vector<double>dpos(npart);
+    vector<double>new_dpos;
+    double pastdpos;
+    double nextdpos;
+    double zeros;
     fstream hist1;
     hist1.open("/home/filiphl/Desktop/figs/hist1.txt", ios::out);
 
-    for (int t = 0; t<2000;t++)
+    for (double t = 0; t<1; t+=dt)
     {
-        for (int k = 0; k<nbins; k++)
-        {
-            hist1 << setw(10) <<  part(k)/npart;
-        }
+        //Write to file
+        for (int k = 0; k<dpos.size(); k++)   {hist1 << setw(15) <<  dpos[k];}
         hist1<<endl;
-        new_M = part;
-        for (int i = 0; i<nbins-1; i++)
-        {
-            r = randu<vec>(part(i));
 
-            for (int j=0; j<part(i); j++)
-            {
-                if (r(j) > 0.5)
-                {
-                    new_M(i+1)+= 1;
-                }
-                else
-                {
-                    if (i != 0)
-                    {
-                        new_M(i-1)+= 1;
-                    }
-                }
-                new_M(i)-= 1;
+
+        for (int i=0; i<dpos.size(); i++)
+        {
+                pastdpos = dpos[i];
+                r = ran0(&idum);
+                if (r > 0.5){nextdpos = pastdpos + l0;}
+                else {nextdpos = pastdpos - l0;}
+                if ((nextdpos>0)&&(nextdpos<L)) {new_dpos.push_back(nextdpos);}
+                if (pastdpos==0) {new_dpos.push_back(0);
             }
         }
-        part = new_M;
-        part(0) = npart;
-        part(nbins - 1) = 0;
+
+        for (int y=0; y<new_dpos.size(); y++)
+        {
+            if (new_dpos[y] == 0) { zeros++;}
+        }
+
+        //dpos.clear();
+        dpos = new_dpos;
+        new_dpos.clear();
     }
     hist1.close();
 
-    system("python /home/filiphl/Desktop/figs/hist.py 1999");
-    system("rm /home/filiphl/Desktop/figs/hist1.txt");
+    system("python /home/filiphl/Desktop/figs/hist.py 30");
+    //system("rm /home/filiphl/Desktop/figs/hist1.txt");
     //Plot p(linspace(0,1,nbins), part);
     //p.Show();
 
-    */
+
 
 
 
@@ -111,13 +111,11 @@ int main()
     is much more efficient than having a vector containing the
     position of each particle and expand and erase elements as
     part enter and exit...
-    */
-
 
     int L = 1;
-    double dt = 0.00004;          //0.001
+    double dt = 0.001;
     double l0= sqrt(2*dt);
-    double dx = 0.01;           //0.05
+    double dx = 0.05;
     Random r(-1);
     int npart = 10000;
 
@@ -139,7 +137,7 @@ int main()
         pos = updatedpos;
         updatedpos.clear();
 
-        if (c==1000)
+        if (c==100)
         {
             cout << 100*t <<"% done"<<endl;
             for (int k = 0; k<pos.size(); k++)  //Writes data to file.
@@ -155,11 +153,8 @@ int main()
             pos[i] += r.nextGauss(0.0, sd)*l0;
             nextpos = pos[i];
 
-            if ( (nextpos>=0)&&(nextpos<L) ) //Includes relevant values.
-            {
-                updatedpos.push_back(nextpos);
-                //if (nextpos < dx) { cc++; }
-            }
+            //Includes relevant values.
+            if ( (nextpos>=0)&&(nextpos<L) ) { updatedpos.push_back(nextpos); }
 
             // Partical moving from inside the dx-interval to outside
             if ( (0<=pastpos) && (pastpos<dx) )
@@ -169,7 +164,6 @@ int main()
 
             //Partical moving from outside the dx-interval to inside
             if ( (pastpos>dx) && (nextpos<dx) && (nextpos>0) ) {cc++;}
-
         }
 
         while (cc < 0)
@@ -180,54 +174,11 @@ int main()
         c++;
     }
 
-    for (int k = 0; k<pos.size(); k++)  //Writes data to file.
-    {
-        hist1 << setw(25) << setprecision(8) <<  pos[k];
-    }
-    hist1 << endl;
-
-
-
-
-    /*
-            if (nextpos<0) {
-                swap(pos[i], pos.back());
-                pos.pop_back();
-                i--;
-            }
-            if ((nextpos>dx)&&(pastpos<dx))
-            {
-                if (cc==0) pos.push_back(0);
-                else cc--;
-            }
-            if ((pastpos>dx)&& (0<nextpos)&&(nextpos<dx))
-            {
-                cc++;
-                cout << cc<<endl;
-            }
-            if (nextpos>L)
-            {
-
-                swap(pos[i], pos.back());
-                pos.pop_back();
-                i--;
-            }
-            if ( (pastpos <dx)&&(nextpos<0) )
-            {
-                pos[i] = 0;
-            }
-            */
-
-
-
-
-    //c+=1;
-
-
     char str2[100];
-    sprintf(str2, "python /home/filiphl/Desktop/figs/hist.py %d", 100);
+    sprintf(str2, "python /home/filiphl/Desktop/figs/hist.py %d", 9);
     system(str2);
 
+    */
 
 
     /*
