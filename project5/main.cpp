@@ -115,55 +115,54 @@ int main()
 
 
     int L = 1;
-    double dt = 0.01;
+    double dt = 0.00004;          //0.001
     double l0= sqrt(2*dt);
-    double dx = 0.01;
+    double dx = 0.01;           //0.05
     Random r(-1);
     int npart = 10000;
 
     vector<double> pos;
-    vector<double> updatedpos;
-    vector<double> zeros;
+    vector<double> updatedpos(npart); // FIlled with zeroes as default.
     double sd =1/sqrt(2); //standard deviation
     double pastpos;
     double nextpos;
 
-
-
-    for (int i=0; i< npart; i++)    //Initial state
-    {
-        zeros.push_back(0);
-    }
-
-    updatedpos = zeros;
-
     fstream hist1;
     hist1.open("/home/filiphl/Desktop/figs/hist1.txt", ios::out);
 
-    //int c = 1;
-    int i = 0;
+    int c = 0;
     int cc = 0;
-    for (double t=0; t<2*dt; t+=dt)
+    for (double t=0; t<1; t+=dt)
     {
+
         //cout<<t<<endl;
         pos = updatedpos;
-        updatedpos = zeros;
-        for (int k = 0; k<pos.size(); k++)
+        updatedpos.clear();
+
+        if (c==1000)
         {
-            hist1 << setw(15) <<  pos[k];
+            cout << 100*t <<"% done"<<endl;
+            for (int k = 0; k<pos.size(); k++)  //Writes data to file.
+            {
+                hist1 << setw(25) << setprecision(8) <<  pos[k];
+            }
+            hist1 << endl;
+            c = 0;
         }
-        hist1 << endl;
-        cout<<"1 : " << updatedpos.size()<<endl;
-        while (i<pos.size())
+        for (int i=0; i<pos.size(); i++)
         {
             pastpos = pos[i];
-            pos[i] += r.nextGauss(0, sd)*l0;
+            pos[i] += r.nextGauss(0.0, sd)*l0;
             nextpos = pos[i];
 
-            if ( (nextpos>dx)&&(nextpos<L) ) {updatedpos.push_back(nextpos);} //Includes relevant values.
-             if ( (nextpos>0)&&(nextpos<dx) ) {updatedpos.push_back(nextpos); cc++;}
+            if ( (nextpos>=0)&&(nextpos<L) ) //Includes relevant values.
+            {
+                updatedpos.push_back(nextpos);
+                //if (nextpos < dx) { cc++; }
+            }
+
             // Partical moving from inside the dx-interval to outside
-            if ( (0<pastpos) && (pastpos<dx) )
+            if ( (0<=pastpos) && (pastpos<dx) )
             {
                 if ( (nextpos<0) || (nextpos>dx) ) {cc--;}
             }
@@ -171,19 +170,21 @@ int main()
             //Partical moving from outside the dx-interval to inside
             if ( (pastpos>dx) && (nextpos<dx) && (nextpos>0) ) {cc++;}
 
-            i++;
         }
 
-        cout<<"2 : " << updatedpos.size()<<endl;
-        cout << "cc = "<<cc<<endl;
         while (cc < 0)
         {
             updatedpos.push_back(0);
             cc++;
         }
-        cout<<"3 : " << updatedpos.size()<<endl;
-
+        c++;
     }
+
+    for (int k = 0; k<pos.size(); k++)  //Writes data to file.
+    {
+        hist1 << setw(25) << setprecision(8) <<  pos[k];
+    }
+    hist1 << endl;
 
 
 
@@ -223,13 +224,13 @@ int main()
     //c+=1;
 
 
-char str2[100];
-sprintf(str2, "python /home/filiphl/Desktop/figs/hist.py %d", 99);
-system(str2);
+    char str2[100];
+    sprintf(str2, "python /home/filiphl/Desktop/figs/hist.py %d", 100);
+    system(str2);
 
 
 
-/*
+    /*
                 // *********monte carlo 2D************
 
                     int nbins = 100;
@@ -332,7 +333,7 @@ system(str2);
 
 
 
-/*
+    /*
                     int N = 5;
                     double dt = 0.004;
                     double dx = 0.2;
@@ -355,7 +356,7 @@ system(str2);
                     Two.Implicit2d(V0);
                 */
 
-/*
+    /*
                     double t = 0;
                     double timelimit = 2;
                     int c = 0;
@@ -400,7 +401,7 @@ system(str2);
 
 
 
-/*
+    /*
                         A = Analytical(t,x,y);   // Calculates the analytical solution.
                         char str[50];
                         sprintf(str, "/home/filiphl/Desktop/figs/plot%d.txt", c);
@@ -416,7 +417,7 @@ system(str2);
                         }
 
                 */
-return 0;
+    return 0;
 }
 
 
