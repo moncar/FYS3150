@@ -21,7 +21,7 @@ for line in infile:
 			particles[i].append(float(w[j]))
 	i+=1
 
-Hist = plt.hist(particles[int(argv[1])], bins=10)
+Bar = plt.bar(range(nrb), particles[int(argv[1])])
 plt.axis([0,nrb,0,particles[0][0]])
 plt.show()
 

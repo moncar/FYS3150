@@ -161,7 +161,6 @@ int main()
             nextpos = pos[i];
 
             if ( (nextpos>dx)&&(nextpos<L) ) {updatedpos.push_back(nextpos);} //Includes relevant values.
-             if ( (nextpos>0)&&(nextpos<dx) ) {updatedpos.push_back(nextpos); cc++;}
             // Partical moving from inside the dx-interval to outside
             if ( (0<pastpos) && (pastpos<dx) )
             {
