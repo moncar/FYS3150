@@ -47,7 +47,7 @@ int main()
 
     // Monte Carlo a)
 
-/*
+    /*
     int L = 1;
     double dt = 0.01;
     double l0= sqrt(2*dt);
@@ -94,7 +94,7 @@ int main()
 
 
     //********Monte Carlo b)*********//
-/* Since there is no longer an integer times l_0 steplength,
+    /* Since there is no longer an integer times l_0 steplength,
     we can no longer use the configuration above. We can no longer
     use a vector telling how many part are in the one x-position,
     because most likely none of the part are at the same place
@@ -105,7 +105,7 @@ int main()
     position of each particle and expand and erase elements as
     part enter and exit...
 */
-/*
+    /*
     int L = 1;
     double dt = 0.00004;
     double l0= sqrt(2*dt);
@@ -274,39 +274,71 @@ int main()
     // Monte Carlo 2D
 
     int L = 1;
-    double dt = 0.001;
+    double dt = 0.01;
     double l0= sqrt(2*dt);
     double dx = 0.05;   // dy=dx
     Random r(-1);
-    int npart = 1000;
+    int npart = 10;
 
-    vector<double> xpos(npart);  // FIlled with zeroes as default.
-    vector<double> ypos;
-    for (int j=0; j<npart; j++) { ypos.push_back(j); }
-    vector<double> new_xpos;
-    vector<double>new_ypos;
-    double sd =1/sqrt(2); //standard deviation
-    double pastpos;
-    double nextpos;
+    vector<float> xpos(npart);  // FIlled with zeroes as default.
+    vector<float> ypos;
+    for (float j=0; j<=npart; j++) { ypos.push_back(j/npart); }
+    vector<float> new_xpos;
+    vector<float>new_ypos;
+    float sd =1/sqrt(2); //standard deviation
+    float pastxpos, pastypos, nextxpos, nextypos;
     long int idum = -1;
+    int nbins = L/dx - 1;
+    mat M;
 
-    for (double t=0; t<1; t+=dt)
+    int c = 10;
+    int a = 0;
+    int cc = 0;
+    int y = 0;
+    for (float t=0; t<1; t+=dt)
     {
-
-        //cout<<t<<endl;
-/*
-        if (c==1000)
+        cout <<"time: "<<t<<endl;
+        if (c==10)
         {
-            cout << 100*t <<"% done"<<endl;
-            for (int k = 0; k<pos.size(); k++)  //Writes data to file.
+            cout << 10*t <<"% done"<<endl;
+
+            M = zeros<mat>(nbins, nbins);
+            for (int i=0; i<xpos.size(); i++)
             {
-                hist1 << setw(25) << setprecision(8) <<  pos[k];
+                for (int j=0; j<ypos.size(); j++)   //They should be equal in size...
+                {
+                    for (int row=0; row<nbins; row++)
+                    {
+                        for (int col=0; col<nbins; col++)
+                        {
+                            if ( (xpos[i]>=row*dx) && (xpos[i]<(row+1)*dx) )
+                            {
+                                if ( (ypos[j]>=col*dx) && (ypos[j]<(col+1)*dx) )  {M(col,row)+=1;}
+                            }
+                        }
+                    }
+                }
             }
-            hist1 << endl;
+            cout <<"hei"<<endl;
+            fstream mc2;
+            char str[100];
+            sprintf(str, "/home/filiphl/Desktop/figs/mc2d%d.txt", a);
+            mc2.open(str, ios::out);
+
+            for (int row=0; row<nbins; row++)
+            {
+                for (int col=0; col<nbins; col++)
+                {
+                    mc2<< setw(15)<<M(row,col);
+                }
+                mc2<<endl;
+            }
+            cout<<"Hallo"<<endl;
+            a+=c;
             c = 0;
         }
-*/
-        for (int i=0; i<pos.size(); i++)
+
+        for (int i=0; i<xpos.size(); i++)   //xpos and ypos should have equal size.
         {
             pastxpos = xpos[i];
             pastypos = ypos[i];
@@ -316,7 +348,14 @@ int main()
             nextypos = ypos[i];
 
             //Includes relevant values.
-            if ( (nextxpos>=0)&&(nextxpos<L) ) { new_xpos.push_back(nextxpos); }
+            if ( (nextxpos>=0)&&(nextxpos<L) )
+            {
+                new_xpos.push_back(nextxpos);
+                if ( (nextypos>=0)&&(nextypos<L) ) { new_ypos.push_back(nextypos); }
+                // Particles moving for inside y=[0,1] to outside: periodical boundary conditions.
+                else if ( (pastypos<L) && (nextypos>L) ) { new_ypos.push_back(nextypos-L); }
+                else if ( (pastypos>0) && (nextypos<0) ) { new_ypos.push_back(nextypos+L); }
+            }
 
             // Partical moving from inside the dx-interval to outside
             if ( (0<=pastxpos) && (pastxpos<dx) )
@@ -326,16 +365,26 @@ int main()
 
             //Partical moving from outside the dx-interval to inside
             if ( (pastxpos>dx) && (nextxpos<dx) && (nextxpos>0) ) {cc++;}
-        }
 
+        }
+        cout<<"halla!"<<endl;
+
+        // Add new elements at x = dx/2 and y = [0,1]
         while (cc < 0)
         {
-            new_xpos.push_back(dx/2); // Notice the position!
-            new_ypos.push_back(ran0(idum));
+            new_xpos.push_back(dx/2);
+            new_ypos.push_back(y/npart);    // Random in interval [0,1].
+            y++;
+            if (y>npart){y=0;}
             cc++;
         }
-        pos = updatedpos;
-        updatedpos.clear();
+        cout << "skjer?"<<endl;
+
+        xpos = new_xpos;
+        ypos = new_ypos;
+        new_xpos.clear();
+        new_ypos.clear();
+        cout << "ikke mye"<<endl;
         c++;
     }
 
