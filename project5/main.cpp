@@ -47,7 +47,7 @@ int main()
 
     // Monte Carlo a)
 
-
+/*
     int L = 1;
     double dt = 0.01;
     double l0= sqrt(2*dt);
@@ -58,16 +58,16 @@ int main()
     vector<double>new_dpos;
     double pastdpos;
     double nextdpos;
-    double zeros;
-    fstream hist1;
-    hist1.open("/home/filiphl/Desktop/figs/hist1.txt", ios::out);
+
+    fstream hista;
+    hista.open("/home/filiphl/Desktop/figs/hist_a.txt", ios::out);
 
     for (double t = 0; t<1; t+=dt)
     {
+        cout << t<<endl;
         //Write to file
-        for (int k = 0; k<dpos.size(); k++)   {hist1 << setw(15) <<  dpos[k];}
-        hist1<<endl;
-
+        for (int k = 0; k<dpos.size(); k++)   {hista << setw(15) <<  dpos[k];}
+        hista<<endl;
 
         for (int i=0; i<dpos.size(); i++)
         {
@@ -79,29 +79,22 @@ int main()
                 if (pastdpos==0) {new_dpos.push_back(0);
             }
         }
-
-        for (int y=0; y<new_dpos.size(); y++)
-        {
-            if (new_dpos[y] == 0) { zeros++;}
-        }
-
-        //dpos.clear();
         dpos = new_dpos;
         new_dpos.clear();
     }
-    hist1.close();
+    hista.close();
+    //Run python script for histogram.
+    system("python /home/filiphl/Desktop/figs/hist.py hist_a.txt 90");
 
-    system("python /home/filiphl/Desktop/figs/hist.py 30");
-    //system("rm /home/filiphl/Desktop/figs/hist1.txt");
-    //Plot p(linspace(0,1,nbins), part);
-    //p.Show();
+    */
+
 
 
 
 
 
     //********Monte Carlo b)*********//
-    /*Since there is no longer an integer times l_0 steplength,
+/* Since there is no longer an integer times l_0 steplength,
     we can no longer use the configuration above. We can no longer
     use a vector telling how many part are in the one x-position,
     because most likely none of the part are at the same place
@@ -111,11 +104,12 @@ int main()
     is much more efficient than having a vector containing the
     position of each particle and expand and erase elements as
     part enter and exit...
-
+*/
+/*
     int L = 1;
-    double dt = 0.001;
+    double dt = 0.00004;
     double l0= sqrt(2*dt);
-    double dx = 0.05;
+    double dx = 0.01;
     Random r(-1);
     int npart = 10000;
 
@@ -134,10 +128,8 @@ int main()
     {
 
         //cout<<t<<endl;
-        pos = updatedpos;
-        updatedpos.clear();
 
-        if (c==100)
+        if (c==1000)
         {
             cout << 100*t <<"% done"<<endl;
             for (int k = 0; k<pos.size(); k++)  //Writes data to file.
@@ -168,17 +160,17 @@ int main()
 
         while (cc < 0)
         {
-            updatedpos.push_back(0);
+            updatedpos.push_back(dx/2); // Notice the position!
             cc++;
         }
+        pos = updatedpos;
+        updatedpos.clear();
         c++;
     }
 
-    char str2[100];
-    sprintf(str2, "python /home/filiphl/Desktop/figs/hist.py %d", 9);
-    system(str2);
 
-    */
+    system("python /home/filiphl/Desktop/figs/hist.py hist1.txt 24");
+*/
 
 
     /*
@@ -276,6 +268,104 @@ int main()
                     }
 
                 */
+
+
+
+    // Monte Carlo 2D
+
+    int L = 1;
+    double dt = 0.001;
+    double l0= sqrt(2*dt);
+    double dx = 0.05;   // dy=dx
+    Random r(-1);
+    int npart = 1000;
+
+    vector<double> xpos(npart);  // FIlled with zeroes as default.
+    vector<double> ypos;
+    for (int j=0; j<npart; j++) { ypos.push_back(j); }
+    vector<double> new_xpos;
+    vector<double>new_ypos;
+    double sd =1/sqrt(2); //standard deviation
+    double pastpos;
+    double nextpos;
+    long int idum = -1;
+
+    for (double t=0; t<1; t+=dt)
+    {
+
+        //cout<<t<<endl;
+/*
+        if (c==1000)
+        {
+            cout << 100*t <<"% done"<<endl;
+            for (int k = 0; k<pos.size(); k++)  //Writes data to file.
+            {
+                hist1 << setw(25) << setprecision(8) <<  pos[k];
+            }
+            hist1 << endl;
+            c = 0;
+        }
+*/
+        for (int i=0; i<pos.size(); i++)
+        {
+            pastxpos = xpos[i];
+            pastypos = ypos[i];
+            xpos[i] += r.nextGauss(0.0, sd)*l0;
+            ypos[i] += r.nextGauss(0.0, sd)*l0;
+            nextxpos = xpos[i];
+            nextypos = ypos[i];
+
+            //Includes relevant values.
+            if ( (nextxpos>=0)&&(nextxpos<L) ) { new_xpos.push_back(nextxpos); }
+
+            // Partical moving from inside the dx-interval to outside
+            if ( (0<=pastxpos) && (pastxpos<dx) )
+            {
+                if ( (nextxpos<0) || (nextxpos>dx) ) {cc--;}
+            }
+
+            //Partical moving from outside the dx-interval to inside
+            if ( (pastxpos>dx) && (nextxpos<dx) && (nextxpos>0) ) {cc++;}
+        }
+
+        while (cc < 0)
+        {
+            new_xpos.push_back(dx/2); // Notice the position!
+            new_ypos.push_back(ran0(idum));
+            cc++;
+        }
+        pos = updatedpos;
+        updatedpos.clear();
+        c++;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
