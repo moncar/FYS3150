@@ -274,52 +274,46 @@ int main()
     // Monte Carlo 2D
 
     int L = 1;
-    double dt = 0.01;
+    double dt = 0.001;
     double l0= sqrt(2*dt);
     double dx = 0.05;   // dy=dx
     Random r(-1);
-    int npart = 10;
+    int npart = 100000;
 
-    vector<float> xpos(npart);  // FIlled with zeroes as default.
+    vector<float> xpos;  // FIlled with zeroes as default.
     vector<float> ypos;
-    for (float j=0; j<=npart; j++) { ypos.push_back(j/npart); }
+    for (float j=0; j<npart; j++) { xpos.push_back(dx/2); ypos.push_back(j/npart); }
     vector<float> new_xpos;
     vector<float>new_ypos;
     float sd =1/sqrt(2); //standard deviation
     float pastxpos, pastypos, nextxpos, nextypos;
     long int idum = -1;
-    int nbins = L/dx - 1;
+    int nbins = L/dx-1;
     mat M;
-
-    int c = 10;
+    int c = 1;
     int a = 0;
     int cc = 0;
-    int y = 0;
-    for (float t=0; t<1; t+=dt)
+    float y;
+    for (float t=0; t<0.25; t+=dt)
     {
-        cout <<"time: "<<t<<endl;
-        if (c==10)
+        if (c==1)
         {
-            cout << 10*t <<"% done"<<endl;
+            cout << 100*t/0.25 <<"% done"<<endl;
 
             M = zeros<mat>(nbins, nbins);
             for (int i=0; i<xpos.size(); i++)
             {
-                for (int j=0; j<ypos.size(); j++)   //They should be equal in size...
+                for (int row=0; row<nbins; row++)
                 {
-                    for (int row=0; row<nbins; row++)
+                    for (int col=0; col<nbins; col++)
                     {
-                        for (int col=0; col<nbins; col++)
+                        if ( (xpos[i]>=row*dx) && (xpos[i]<(row+1)*dx) )
                         {
-                            if ( (xpos[i]>=row*dx) && (xpos[i]<(row+1)*dx) )
-                            {
-                                if ( (ypos[j]>=col*dx) && (ypos[j]<(col+1)*dx) )  {M(col,row)+=1;}
-                            }
+                            if ( (ypos[i]>=col*dx) && (ypos[i]<(col+1)*dx) )  {M(col,row)+=1;}
                         }
                     }
                 }
             }
-            cout <<"hei"<<endl;
             fstream mc2;
             char str[100];
             sprintf(str, "/home/filiphl/Desktop/figs/mc2d%d.txt", a);
@@ -333,7 +327,6 @@ int main()
                 }
                 mc2<<endl;
             }
-            cout<<"Hallo"<<endl;
             a+=c;
             c = 0;
         }
@@ -347,14 +340,15 @@ int main()
             nextxpos = xpos[i];
             nextypos = ypos[i];
 
+
             //Includes relevant values.
-            if ( (nextxpos>=0)&&(nextxpos<L) )
+            if ( (nextxpos>0)&&(nextxpos<L) )
             {
                 new_xpos.push_back(nextxpos);
-                if ( (nextypos>=0)&&(nextypos<L) ) { new_ypos.push_back(nextypos); }
+                if ( (nextypos>=0)&&(nextypos<=L) ) { new_ypos.push_back(nextypos); }
                 // Particles moving for inside y=[0,1] to outside: periodical boundary conditions.
-                else if ( (pastypos<L) && (nextypos>L) ) { new_ypos.push_back(nextypos-L); }
-                else if ( (pastypos>0) && (nextypos<0) ) { new_ypos.push_back(nextypos+L); }
+                else if ( (pastypos<=L) && (nextypos>L) ) { new_ypos.push_back(nextypos-L); }
+                else if ( (pastypos>=0) && (nextypos<0) ) { new_ypos.push_back(nextypos+L); }
             }
 
             // Partical moving from inside the dx-interval to outside
@@ -364,27 +358,26 @@ int main()
             }
 
             //Partical moving from outside the dx-interval to inside
-            if ( (pastxpos>dx) && (nextxpos<dx) && (nextxpos>0) ) {cc++;}
+            if ( (pastxpos>dx) && (nextxpos<dx) && (nextxpos>0) ) {cc++; }
 
         }
-        cout<<"halla!"<<endl;
+
+
 
         // Add new elements at x = dx/2 and y = [0,1]
+        y = cc;
         while (cc < 0)
         {
-            new_xpos.push_back(dx/2);
-            new_ypos.push_back(y/npart);    // Random in interval [0,1].
-            y++;
-            if (y>npart){y=0;}
+            new_xpos.push_back(dx/2.0);
+            new_ypos.push_back(cc/y);
             cc++;
         }
-        cout << "skjer?"<<endl;
 
         xpos = new_xpos;
         ypos = new_ypos;
         new_xpos.clear();
         new_ypos.clear();
-        cout << "ikke mye"<<endl;
+
         c++;
     }
 
