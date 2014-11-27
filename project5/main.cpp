@@ -289,6 +289,7 @@ int main()
     float pastxpos, pastypos, nextxpos, nextypos;
     long int idum = -1;
     int nbins = L/dx-1;
+    float norm = npart/nbins;
     mat M;
     int c = 1;
     int a = 0;
@@ -323,7 +324,7 @@ int main()
             {
                 for (int col=0; col<nbins; col++)
                 {
-                    mc2<< setw(15)<<M(row,col);
+                    mc2<< setw(15)<<M(row,col)/norm;
                 }
                 mc2<<endl;
             }
