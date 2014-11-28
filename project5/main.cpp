@@ -324,13 +324,13 @@ int main()
 
 
 
-    int N = 5;
-    double dt = 0.004;
-    double dx = 0.2;
+    int N = 20;
+    double dt = 0.001;  // 0.001;
+    double dx = 0.1;   // 0.05; gives alpha = 0.4
     double t = 0;
-    double timelimit = 1;
+    double timelimit = 0.25;
     int c = 0;
-    int inst = 10;
+    int inst = 1;
     vec x = linspace(0,1,N);
     vec y = linspace(0,1,N);
     mat U=zeros<mat>(N,N);
@@ -345,7 +345,11 @@ int main()
     }
 
     Schemes2d Two(dx,dt);
-    mat E, EU, I, IU = ones<mat>(N,N);
+    mat E = ones<mat>(N,N);
+    mat EU = ones<mat>(N,N);
+    mat I =  ones<mat>(N,N);
+    mat IU = ones<mat>(N,N);
+
     E = Two.Explicit2d(V0);
     I = Two.Implicit2d(V0);
 
@@ -355,19 +359,15 @@ int main()
         fstream plotE, plotI;
         char strE[100], strI[100];
         E = Two.Explicit2d(E);
-         I = Two.Implicit2d(I);
-         cout << E<<endl;
-         cout << I <<endl;
+        I = Two.Implicit2d(I);
+
         for (int i=0; i<N; i++)
         {
-            cout<<"test0"<<endl;
-            EU.col(i) = E.col(i) + trans(1-x);
-            cout <<"test1"<<endl;
+            EU.col(i) = E.col(i) + 1-x;
             IU.col(i) = I.col(i) + 1-x;
-            cout<<"test2"<<endl;
         }
 
-        if (inst == 10)
+        if (inst == 1)
         {
             sprintf(strE, "/home/filiphl/Desktop/figs/plotE%d.txt", c);
             sprintf(strI, "/home/filiphl/Desktop/figs/plotI%d.txt", c);
@@ -378,15 +378,14 @@ int main()
             {
                 for (int j=0; j<N; j++)
                 {
-                    plotE << setw(20) <<setprecision(10)<<EU(i,j);
-                    plotI << setw(20) <<setprecision(10)<<IU(i,j);
+                    plotE << setw(20) <<setprecision(10)<<EU(j,i);
+                    plotI << setw(20) <<setprecision(10)<<IU(j,i);
                 }
                 plotE << endl;
                 plotI << endl;
             }
             inst = 0;
         }
-
 
         inst +=1;
         c+=1;
