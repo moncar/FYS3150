@@ -105,6 +105,7 @@ int main()
     position of each particle and expand and erase elements as
     part enter and exit...
 */
+
     /*
     int L = 1;
     double dt = 0.00004;
@@ -173,104 +174,9 @@ int main()
 */
 
 
+
+
     /*
-                // *********monte carlo 2D************
-
-                    int nbins = 100;
-                    int npart = 10000;
-                    mat new_M = zeros<mat>(nbins, nbins);
-                    mat M(nbins, nbins);
-                    vec rx, ry;
-
-                    // Set up initial state
-                    for (int i = 0; i<nbins; i++)
-                    {
-                        M(i,0) = npart/nbins;
-                    }
-
-
-                    //mat1.open("/home/filiphl/Desktop/figs/mat1.txt", ios::out);
-
-                    int m;
-                    int c=0;
-                    double prosess;
-                    double timelimit = 5000;
-                    // Start iterations
-                    for (int t = 0; t<timelimit; t++)
-                    {
-                        new_M = zeros<mat>(nbins, nbins);
-
-                        for (int i = 0; i<nbins; i++)
-                        {
-                            for (int j=0; j<nbins; j++)
-                            {
-                                m = M(i, j);
-                                if (m!=0)
-                                {
-                                    rx = randu<vec>(m);
-                                    ry = randu<vec>(m);
-                                    for ( int n=0; n<m; n++ )   // Loop over all particles in the position (i,j)
-                                    {
-                                        if ( (rx(n) > 0.5) && (ry(n) > 0.5) && (j!=nbins-1) )
-                                        {
-                                            if (i==nbins-1) { new_M(0, j+1) += 1;}
-                                            else {new_M(i+1,j+1) += 1;}
-                                        }
-
-                                        if ( (rx(n) > 0.5) && (ry(n) < 0.5) && (j!=nbins-1) )
-                                        {
-                                            if (i==0) { new_M(nbins-1, j+1) += 1;}
-                                            else {new_M(i-1, j+1) += 1;}
-                                        }
-
-                                        if ( (rx(n) < 0.5) && (ry(n) > 0.5) && (j!=0) )
-                                        {
-                                            if (i==nbins-1) { new_M(0, j-1) += 1;}
-                                            else {new_M(i+1, j-1) += 1;}
-                                        }
-
-                                        if ( (rx(n) < 0.5) && (ry(n) < 0.5) && (j!=0) )
-                                        {
-                                            if (i==0) { new_M(nbins-1, j-1) += 1;}
-                                            else {new_M(i-1, j-1) += 1;}
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        M = new_M;
-                        for (int i=0; i<nbins; i++)
-                        {
-                            M(i, 0) = npart/nbins;
-                            M(i, nbins-1) = 0;
-                        }
-                        if (c==100)
-                        {
-                            fstream mat1;
-                            char str[100];
-                            sprintf(str, "/home/filiphl/Desktop/figs/mat%d.txt", t);
-                            mat1.open(str, ios::out);
-
-
-                            for (int i=0; i<nbins; i++)
-                            {
-                                for (int j=0; j<nbins; j++)
-                                {
-                                    mat1 <<  setw(20) << M(i,j);   //writes the matrix.
-                                }
-                                mat1 << endl;
-                            }
-                            c=0;
-                            prosess += 100;
-                            cout << 100*prosess/timelimit<<"% finished"<<endl;
-                        }
-                        c+=1;
-                    }
-
-                */
-
-
-
     // Monte Carlo 2D
 
     int L = 1;
@@ -278,7 +184,7 @@ int main()
     double l0= sqrt(2*dt);
     double dx = 0.05;   // dy=dx
     Random r(-1);
-    int npart = 100000;
+    int npart = 10000;
 
     vector<float> xpos;  // FIlled with zeroes as default.
     vector<float> ypos;
@@ -384,6 +290,7 @@ int main()
 
 
 
+*/
 
 
 
@@ -417,67 +324,75 @@ int main()
 
 
 
-    /*
-                    int N = 5;
-                    double dt = 0.004;
-                    double dx = 0.2;
-                    vec x = linspace(0,1,N);
-                    vec y = linspace(0,1,N);
-                    mat U=zeros<mat>(N,N);
-                    U.col(0) = 1-x;
-                    U.col(N-1)=1-x;
-                    U.row(0) = ones<mat>(1,N);
-                    mat V0(N,N);
-                    for (int i = 0; i<N; i++)
-                    {
-                        V0.col(i)=U.col(i)+x-1;
-                    }
+    int N = 5;
+    double dt = 0.004;
+    double dx = 0.2;
+    double t = 0;
+    double timelimit = 1;
+    int c = 0;
+    int inst = 10;
+    vec x = linspace(0,1,N);
+    vec y = linspace(0,1,N);
+    mat U=zeros<mat>(N,N);
+    U.col(0) = 1-x;
+    U.col(N-1)=1-x;
+    U.row(0) = ones<mat>(1,N);
+    mat V0(N,N);
 
-                    Schemes2d Two(dx,dt);
-                    mat E, EU = ones<mat>(N,N);
-                    E = Two.Explicit2d(V0);
+    for (int i = 0; i<N; i++)
+    {
+        V0.col(i)=U.col(i)+x-1;
+    }
 
-                    Two.Implicit2d(V0);
-                */
-
-    /*
-                    double t = 0;
-                    double timelimit = 2;
-                    int c = 0;
-                    int inst = 10;
-
-                    while ( t<timelimit)
-                    {
-                        fstream plot1;
-                        char str[100];
-                        E = Two.Explicit2d(E);
-
-                        for (int i=0; i<N; i++)
-                        {
-                            EU.col(i) = E.col(i) + 1-x;
-                        }
-
-                        if (inst == 10)
-                        {
-                            sprintf(str, "/home/filiphl/Desktop/figs/plotE%d.txt", c);
-                            plot1.open(str, ios::out);
-                            for (int i=0; i<N; i++)
-                            {
-                                for (int j=0; j<N; j++)
-                                {
-                                    plot1 << setw(20) <<setprecision(10)<<EU(i,j);
-                                }
-                                plot1 << endl;
-                            }
-                            inst = 0;
-                        }
+    Schemes2d Two(dx,dt);
+    mat E, EU, I, IU = ones<mat>(N,N);
+    E = Two.Explicit2d(V0);
+    I = Two.Implicit2d(V0);
 
 
-                        inst +=1;
-                        c+=1;
-                        t+=dt;
-                    }
-                */
+    while ( t<=timelimit+dt)
+    {
+        fstream plotE, plotI;
+        char strE[100], strI[100];
+        E = Two.Explicit2d(E);
+         I = Two.Implicit2d(I);
+         cout << E<<endl;
+         cout << I <<endl;
+        for (int i=0; i<N; i++)
+        {
+            cout<<"test0"<<endl;
+            EU.col(i) = E.col(i) + trans(1-x);
+            cout <<"test1"<<endl;
+            IU.col(i) = I.col(i) + 1-x;
+            cout<<"test2"<<endl;
+        }
+
+        if (inst == 10)
+        {
+            sprintf(strE, "/home/filiphl/Desktop/figs/plotE%d.txt", c);
+            sprintf(strI, "/home/filiphl/Desktop/figs/plotI%d.txt", c);
+            plotE.open(strE, ios::out);
+            plotI.open(strI, ios::out );
+
+            for (int i=0; i<N; i++)
+            {
+                for (int j=0; j<N; j++)
+                {
+                    plotE << setw(20) <<setprecision(10)<<EU(i,j);
+                    plotI << setw(20) <<setprecision(10)<<IU(i,j);
+                }
+                plotE << endl;
+                plotI << endl;
+            }
+            inst = 0;
+        }
+
+
+        inst +=1;
+        c+=1;
+        t+=dt;
+    }
+
 
 
 

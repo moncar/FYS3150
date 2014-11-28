@@ -13,5 +13,6 @@ public:
     arma::mat Implicit2d(arma::mat U);
     arma::vec Tridiag(arma::vec x, double a, double b, double c);
     double alpha;
+    double beta;
 };
 #endif // SCHEMES2D_H
